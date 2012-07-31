@@ -1,7 +1,7 @@
 package jp.co.timecard;
 
 import java.util.ArrayList;
-import jp.co.timecard.MonthlyActivity.monthlyList;
+import jp.co.timecard.MonthlyActivity.DailyState;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +9,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class MonthlyAdapter extends ArrayAdapter<monthlyList> {
+/**
+ * アダプター
+ * @author TomohiroTano
+ */
+public class MonthlyAdapter extends ArrayAdapter<DailyState> {
 
-	private ArrayList<monthlyList> list;
+	private ArrayList<DailyState> list;
     private LayoutInflater inflater;
     private ViewHolder     holder;
 
-	public MonthlyAdapter(Context context, int textViewResourceId, ArrayList<monthlyList> _list) {
+	public MonthlyAdapter(Context context, int textViewResourceId, ArrayList<DailyState> _list) {
 		super(context, textViewResourceId, _list);
 
         this.list = _list;
@@ -43,7 +47,7 @@ public class MonthlyAdapter extends ArrayAdapter<monthlyList> {
         	holder = (ViewHolder) convertView.getTag();
 		}
 
-        monthlyList item = list.get(position);
+        DailyState item = list.get(position);
         if (item != null) {
             if (holder.date != null) {
             	holder.date.setText(item.date);
@@ -62,7 +66,7 @@ public class MonthlyAdapter extends ArrayAdapter<monthlyList> {
     }
 
     /**
-     * ビューを保持して検索処理を省略する。
+     * Viewを保持してgetView高速化。
      */
     private class ViewHolder {
     	TextView  date;
