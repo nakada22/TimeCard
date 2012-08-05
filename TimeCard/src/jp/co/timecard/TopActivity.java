@@ -1,5 +1,6 @@
 package jp.co.timecard;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,9 +25,12 @@ public class TopActivity extends Activity implements View.OnClickListener
 	int mMonth;
 	int hourOfDay;
 	int minute;
+	//int disp_flg = 0;
     private TextView textView;
+    boolean is24HourView = true;
     Calendar c = Calendar.getInstance();
-    
+	
+  
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -60,36 +64,39 @@ public class TopActivity extends Activity implements View.OnClickListener
 			LeaveofficeChange();
 			break;			
 		case R.id.ini:
-				IniChange();
-				break;
+			IniChange();
+			break;
 		default:
 			break;
 		}
 	}
 	
-	
-	private void updateDisplay() {
-		textView.setText(new StringBuilder().append(hourOfDay).append("時").append(minute)
-                .append("分"));
-    }
-	
 	/*
 	 * 設定ボタンクリック
 	 * */
 	public void IniChange(){
-        
+		//this.disp_flg = 1;
 		TimePickerDialog timePickerDialog;
 		//時刻設定時のリスナ登録
+
 		TimePickerDialog.OnTimeSetListener TimeSetListener = new TimePickerDialog.OnTimeSetListener() {
 		    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-		    	//updateDisplay();
-   
+		        	//updateDisplay();
+		    		TextView tv = (TextView) findViewById(R.id.currenttime);
+					DecimalFormat df = new DecimalFormat("00");
+					StringBuilder sb = new StringBuilder()
+					.append(df.format(hourOfDay))
+					.append(":")
+					.append(df.format(minute));
+					tv.setText(sb);
 		    }
+		    
 		};
-		
+        
+
 
 		//時刻設定ダイアログの作成
-		timePickerDialog = new TimePickerDialog(this, TimeSetListener, hourOfDay, minute, true);
+		timePickerDialog = new TimePickerDialog(this, TimeSetListener, hourOfDay+9, minute, true);
 		timePickerDialog.setTitle("時間設定");
 		timePickerDialog.setMessage("出退勤時刻設定");
 		timePickerDialog.show();
@@ -100,7 +107,7 @@ public class TopActivity extends Activity implements View.OnClickListener
 		//}
 		
 	};
-		
+
 	
 	
 	/*
@@ -150,10 +157,11 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 * */
 	public void CurrentDateDisp() {
 		
-        Calendar calender = Calendar.getInstance();
+		//this.disp_flg = 0;
+		Calendar calender = Calendar.getInstance();
         int week = calender.get(Calendar.DAY_OF_WEEK)-1;//1(日曜)～7(土曜)
         String[] week_name = {"日", "月", "火", "水", "木", "金", "土"};
-        SimpleDateFormat  sdf = new SimpleDateFormat("yyyy'/'MM'/'dd'('"+week_name[week]+"')'");   
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy'/'MM'/'dd'('"+week_name[week]+"')'");   
         Date date = new Date();   
         
         // 現在日表示
@@ -162,12 +170,14 @@ public class TopActivity extends Activity implements View.OnClickListener
         
         // 現在時刻表示
         TextView currenttime = (TextView)findViewById(R.id.currenttime);
-        Time time = new Time();
-		time.setToNow();
+        
+		DecimalFormat df = new DecimalFormat("00");
+		StringBuilder sb = new StringBuilder()
+		.append(df.format(hourOfDay+9))
+		.append(":")
+		.append(df.format(minute));
 
-		int hour = calender.get(Calendar.HOUR_OF_DAY); //(5)現在の時を取得
-	    int minute = calender.get(Calendar.MINUTE);
-		currenttime.setText(hour+9 + ":" + minute);
+	    currenttime.setText(sb);
 	}
 	
 
