@@ -5,11 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+
+import android.content.Context;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +28,6 @@ public class TopActivity extends Activity implements View.OnClickListener
 	int hourOfDay;
 	int minute;
 	//int disp_flg = 0;
-    private TextView textView;
     boolean is24HourView = true;
     Calendar c = Calendar.getInstance();
 	
@@ -48,11 +49,25 @@ public class TopActivity extends Activity implements View.OnClickListener
 		hourOfDay = c.get(Calendar.HOUR_OF_DAY);
 	    minute = c.get(Calendar.MINUTE);
 		
-        CurrentDateDisp();
+	    CurrentDateDisp();
+	    
+        //TextViewに線をセット
+        TextView textView_line = (TextView) findViewById(R.id.textView_line);
+        TextView textView_line2 = (TextView) findViewById(R.id.textView_line2);
+        TextView textView_line3 = (TextView) findViewById(R.id.textView_line3);
+        TextView textView_line4 = (TextView) findViewById(R.id.textView_line4);
+        TextView textView_line5 = (TextView) findViewById(R.id.textView_line5);
+        
+        textView_line.setBackgroundResource(R.layout.line);
+        textView_line2.setBackgroundResource(R.layout.line);
+        textView_line3.setBackgroundResource(R.layout.line);
+        textView_line4.setBackgroundResource(R.layout.line);
+        textView_line5.setBackgroundResource(R.layout.line);
     }
     
 	@Override
 	public void onClick(View v) {
+	
 		switch (v.getId()) {
 		case R.id.checkBox1:
 			checkBoxChange();
@@ -71,32 +86,44 @@ public class TopActivity extends Activity implements View.OnClickListener
 		}
 	}
 	
+	//現在時刻
+	public void Current_date(TextView tv) {
+		Calendar c = Calendar.getInstance();
+		hourOfDay = c.get(Calendar.HOUR_OF_DAY);
+		minute = c.get(Calendar.MINUTE);
+		is24HourView = true;
+		
+		DecimalFormat df = new DecimalFormat("00");
+		StringBuilder sb = new StringBuilder()
+		.append(df.format(hourOfDay))
+		.append(":")
+		.append(df.format(minute));
+		tv.setText(sb);
+	}
+	
 	/*
 	 * 設定ボタンクリック
 	 * */
 	public void IniChange(){
 		//this.disp_flg = 1;
 		TimePickerDialog timePickerDialog;
-		//時刻設定時のリスナ登録
-
+		
+		Calendar c = Calendar.getInstance();
+		hourOfDay = c.get(Calendar.HOUR_OF_DAY);
+		minute = c.get(Calendar.MINUTE);
+		is24HourView = true;
+		
+		
 		TimePickerDialog.OnTimeSetListener TimeSetListener = new TimePickerDialog.OnTimeSetListener() {
 		    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 		        	//updateDisplay();
 		    		TextView tv = (TextView) findViewById(R.id.currenttime);
-					DecimalFormat df = new DecimalFormat("00");
-					StringBuilder sb = new StringBuilder()
-					.append(df.format(hourOfDay))
-					.append(":")
-					.append(df.format(minute));
-					tv.setText(sb);
+		    		Current_date(tv);
 		    }
-		    
 		};
-        
-
-
+		
 		//時刻設定ダイアログの作成
-		timePickerDialog = new TimePickerDialog(this, TimeSetListener, hourOfDay+9, minute, true);
+		timePickerDialog = new TimePickerDialog(TopActivity.this, TimeSetListener, hourOfDay, minute, is24HourView);
 		timePickerDialog.setTitle("時間設定");
 		timePickerDialog.setMessage("出退勤時刻設定");
 		timePickerDialog.show();
@@ -116,6 +143,7 @@ public class TopActivity extends Activity implements View.OnClickListener
 	public void checkBoxChange() {
 		final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
 		final Button inibtn = (Button) findViewById(R.id.ini);
+		inibtn.setVisibility(View.INVISIBLE);
 		
 		if (checkBox.isChecked() == true) {
 			inibtn.setVisibility(View.INVISIBLE);
@@ -128,6 +156,8 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 */
 	public void AttendChange() {
 		final Button attendbtn = (Button) findViewById(R.id.attendance);
+		final TextView tv = (TextView) findViewById(R.id.start_time2);
+		Current_date(tv);
 		
 		if (attendbtn.isEnabled() == true) {
 			Toast.makeText(TopActivity.this,
@@ -140,12 +170,15 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 */
 	public void LeaveofficeChange() {
         final Button leaveofficebtn = (Button) findViewById(R.id.leaveoffice);
+		final TextView tv = (TextView) findViewById(R.id.last_time2);
+		Current_date(tv);
         
         if (leaveofficebtn.isEnabled() == true) {
         	Toast.makeText(TopActivity.this,
             "退勤",
             Toast.LENGTH_SHORT).show();
         }
+
 	}
 	
 	public void OptionDisplay() {
@@ -157,7 +190,7 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 * */
 	public void CurrentDateDisp() {
 		
-		//this.disp_flg = 0;
+		
 		Calendar calender = Calendar.getInstance();
         int week = calender.get(Calendar.DAY_OF_WEEK)-1;//1(日曜)～7(土曜)
         String[] week_name = {"日", "月", "火", "水", "木", "金", "土"};
@@ -169,15 +202,8 @@ public class TopActivity extends Activity implements View.OnClickListener
         textView.setText(sdf.format(date));   
         
         // 現在時刻表示
-        TextView currenttime = (TextView)findViewById(R.id.currenttime);
-        
-		DecimalFormat df = new DecimalFormat("00");
-		StringBuilder sb = new StringBuilder()
-		.append(df.format(hourOfDay+9))
-		.append(":")
-		.append(df.format(minute));
-
-	    currenttime.setText(sb);
+        TextView tv = (TextView)findViewById(R.id.currenttime);
+        Current_date(tv);
 	}
 	
 
