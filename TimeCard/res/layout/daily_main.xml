@@ -30,15 +30,14 @@
             android:layout_height="wrap_content">
             <TextView
                 android:text="始業時間："
-                android:layout_width="0dip"
+                android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:gravity="left|center"
-                android:layout_weight="1"/>
+                android:gravity="left|center"/>
             <TextView
                 android:id="@+id/daily_attendance"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
-                android:gravity="right|center"
+                android:gravity="center|center"
                 android:layout_weight="1"/>
 	        <Button
     	        android:text="設定"
@@ -51,15 +50,14 @@
             android:layout_height="wrap_content">
             <TextView
                 android:text="終業時間："
-                android:layout_width="0dip"
+                android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:gravity="left|center"
-                android:layout_weight="1"/>
+                android:gravity="left|center"/>
             <TextView
                 android:id="@+id/daily_leave"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
-                android:gravity="right|center"
+                android:gravity="center|center"
                 android:layout_weight="1"/>
 	        <Button
     	        android:text="設定"
@@ -72,15 +70,14 @@
             android:layout_height="wrap_content">
             <TextView
                 android:text="休憩時間："
-                android:layout_width="0dip"
+                android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:gravity="left|center"
-                android:layout_weight="1"/>
+                android:gravity="left|center"/>
             <TextView
                 android:id="@+id/daily_break"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
-                android:gravity="right|center"
+                android:gravity="center|center"
                 android:layout_weight="1"/>
 	        <Button
     	        android:text="設定"

@@ -90,9 +90,9 @@ import android.widget.TextView;
 	public void createCalender() {
 
 		final ArrayList<DailyState> dayOfMonth = new ArrayList<DailyState>();
-		DailyState ds = new DailyState();
-
+		
 		for(int i = 1; i < 31; i++) {
+			DailyState ds = new DailyState();
 			ds.date = String.valueOf(i);
 			ds.attendance = "09:00";
 			ds.leave = "17:00";
