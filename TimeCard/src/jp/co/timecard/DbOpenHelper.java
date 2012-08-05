@@ -21,12 +21,21 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(DbConstants.CREATE_TABLE);
+        db.execSQL(DbConstants.CREATE_TABLE1);
+        db.execSQL(DbConstants.CREATE_TABLE2);
+        db.execSQL(DbConstants.CREATE_TABLE3);
+        db.execSQL(DbConstants.CREATE_TABLE4);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(DbConstants.DATABASE_UPDATE);
+        String []DATABASE_UPDATE = {DbConstants.DATABASE_UPDATE1,
+    								DbConstants.DATABASE_UPDATE2,
+    								DbConstants.DATABASE_UPDATE3,
+    								DbConstants.DATABASE_UPDATE4};
+        for (int i=0; i<DATABASE_UPDATE.length; i++) {
+        	db.execSQL(DATABASE_UPDATE[i]);
+        }
         onCreate(db);
     }
 }
