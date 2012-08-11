@@ -3,9 +3,11 @@ package jp.co.timecard;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 
+import jp.co.timecard.db.Dao;
+import jp.co.timecard.db.mapping.Attendance;
+import jp.co.timecard.db.mapping.Kintai;
 import android.app.Activity;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -72,7 +74,25 @@ public class DailyActivity extends Activity {
 
 			@Override
 			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-				// TODO DB登録、breakの時にもamとか表示されるのダサい...
+				Dao dao = new Dao(DailyActivity.this);
+				
+				// TODO uniqなkintaiIdを採番する。 
+				Kintai kintai = new Kintai();
+				kintai.init();
+				
+				Calendar calendar = Calendar.getInstance();
+				
+				// TODO setAll的なの欲しい
+				Attendance attendance = new Attendance();
+				attendance.setAttendanceId(1);
+				attendance.setKintai(kintai);
+				attendance.setAttendanceDate(calendar.getTime());
+				attendance.setAttendanceTime(calendar.getTime());
+				attendance.setRegistDatetime(calendar.getTime());
+							
+				dao.preSave(calendar.getTime());
+				dao.save(attendance);
+				
 				TextView tv = (TextView) findViewById(layout_id);
 				DecimalFormat df = new DecimalFormat("00");
 				StringBuilder sb = new StringBuilder()
