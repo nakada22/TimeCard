@@ -6,11 +6,11 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-import android.content.Context;
+import jp.co.timecard.db.TopDao;
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,9 +27,9 @@ public class TopActivity extends Activity implements View.OnClickListener
 	int mMonth;
 	int hourOfDay;
 	int minute;
-	//int disp_flg = 0;
     boolean is24HourView = true;
     Calendar c = Calendar.getInstance();
+    DecimalFormat df = new DecimalFormat("00");
 	
   
     /** Called when the activity is first created. */
@@ -63,11 +63,12 @@ public class TopActivity extends Activity implements View.OnClickListener
         textView_line3.setBackgroundResource(R.layout.line);
         textView_line4.setBackgroundResource(R.layout.line);
         textView_line5.setBackgroundResource(R.layout.line);
+        
+        TopPreInsert();
     }
     
 	@Override
 	public void onClick(View v) {
-	
 		switch (v.getId()) {
 		case R.id.checkBox1:
 			checkBoxChange();
@@ -86,6 +87,21 @@ public class TopActivity extends Activity implements View.OnClickListener
 		}
 	}
 	
+	/*
+	 * トップ画面を開くと同時に勤怠マスタ(当日日付無ければ)
+	 * 時刻設定マスタへデータ登録
+	 * */
+	public void TopPreInsert() {
+        Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+		SimpleDateFormat timestamp_sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	       
+		TopDao td = new TopDao(getApplicationContext());
+        td.preKintaiSave(sdf.format(date));
+        td.preTimeSave(timestamp_sdf.format(date));
+	}
+	
+	
 	//現在時刻
 	public void Current_date(TextView tv) {
 		Calendar c = Calendar.getInstance();
@@ -93,7 +109,6 @@ public class TopActivity extends Activity implements View.OnClickListener
 		minute = c.get(Calendar.MINUTE);
 		is24HourView = true;
 		
-		DecimalFormat df = new DecimalFormat("00");
 		StringBuilder sb = new StringBuilder()
 		.append(df.format(hourOfDay))
 		.append(":")
@@ -119,6 +134,12 @@ public class TopActivity extends Activity implements View.OnClickListener
 		        	//updateDisplay();
 		    		TextView tv = (TextView) findViewById(R.id.currenttime);
 		    		Current_date(tv);
+		    		StringBuilder sb = new StringBuilder()
+		    		.append(df.format(hourOfDay))
+		    		.append(":")
+		    		.append(df.format(minute));
+		    		
+		    		tv.setText(sb);
 		    }
 		};
 		
@@ -181,16 +202,12 @@ public class TopActivity extends Activity implements View.OnClickListener
 
 	}
 	
-	public void OptionDisplay() {
 
-	}
-    
 	/*
 	 * 現在時刻表示
 	 * */
 	public void CurrentDateDisp() {
-		
-		
+
 		Calendar calender = Calendar.getInstance();
         int week = calender.get(Calendar.DAY_OF_WEEK)-1;//1(日曜)～7(土曜)
         String[] week_name = {"日", "月", "火", "水", "木", "金", "土"};
