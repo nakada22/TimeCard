@@ -5,16 +5,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-
 import jp.co.timecard.db.TopDao;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -30,13 +31,16 @@ public class TopActivity extends Activity implements View.OnClickListener
     boolean is24HourView = true;
     Calendar c = Calendar.getInstance();
     DecimalFormat df = new DecimalFormat("00");
-	
-  
+    Date date = new Date();
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+	SimpleDateFormat timestamp_sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
 	{
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
 
         findViewById(R.id.checkBox1).setOnClickListener(this);
@@ -44,14 +48,12 @@ public class TopActivity extends Activity implements View.OnClickListener
         findViewById(R.id.leaveoffice).setOnClickListener(this);
         findViewById(R.id.ini).setOnClickListener(this);
         
-		mYear = c.get(Calendar.YEAR);
+        mYear = c.get(Calendar.YEAR);
 		mMonth = c.get(Calendar.MONTH) + 1;
 		hourOfDay = c.get(Calendar.HOUR_OF_DAY);
 	    minute = c.get(Calendar.MINUTE);
 		
-	    CurrentDateDisp();
-	    
-        //TextViewに線をセット
+	    //TextViewに線をセット
         TextView textView_line = (TextView) findViewById(R.id.textView_line);
         TextView textView_line2 = (TextView) findViewById(R.id.textView_line2);
         TextView textView_line3 = (TextView) findViewById(R.id.textView_line3);
@@ -63,7 +65,8 @@ public class TopActivity extends Activity implements View.OnClickListener
         textView_line3.setBackgroundResource(R.layout.line);
         textView_line4.setBackgroundResource(R.layout.line);
         textView_line5.setBackgroundResource(R.layout.line);
-        
+
+	    CurrentDisp();
         TopPreInsert();
     }
     
@@ -89,16 +92,18 @@ public class TopActivity extends Activity implements View.OnClickListener
 	
 	/*
 	 * トップ画面を開くと同時に勤怠マスタ(当日日付無ければ)
-	 * 時刻設定マスタへデータ登録
+	 * 時刻設定マスタへデータ登録・既に当日の謹怠記録があれば画面表示
 	 * */
 	public void TopPreInsert() {
-        Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-		SimpleDateFormat timestamp_sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	       
+		final TextView start_tv = (TextView) findViewById(R.id.start_time2); // 始業時刻
+		final TextView end_tv = (TextView) findViewById(R.id.last_time2); 	// 終業時刻
+		final TextView break_tv = (TextView) findViewById(R.id.bleak_time2); // 休憩時間
+		final TextView sumtime_tv = (TextView) findViewById(R.id.sum_time2); // 合計時間
+
 		TopDao td = new TopDao(getApplicationContext());
-        td.preKintaiSave(sdf.format(date));
-        td.preTimeSave(timestamp_sdf.format(date));
+        td.preKintaiSave(sdf.format(date)); // 謹怠ID発行
+        td.preTimeSave(timestamp_sdf.format(date)); // 
+        td.TopTimeDisp(sdf.format(date),start_tv, end_tv, break_tv, sumtime_tv);
 	}
 	
 	
@@ -120,32 +125,32 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 * 設定ボタンクリック
 	 * */
 	public void IniChange(){
-		//this.disp_flg = 1;
 		TimePickerDialog timePickerDialog;
 		
-		Calendar c = Calendar.getInstance();
-		hourOfDay = c.get(Calendar.HOUR_OF_DAY);
-		minute = c.get(Calendar.MINUTE);
-		is24HourView = true;
+		// 画面表示されている時刻取得
+		final TextView tv = (TextView) findViewById(R.id.currenttime);
+		String disptime = String.valueOf(tv.getText());
 		
+    	hourOfDay = Integer.parseInt(disptime.substring(0, 2));
+    	minute = Integer.parseInt(disptime.substring(3, 5));
+    	is24HourView = true;
 		
 		TimePickerDialog.OnTimeSetListener TimeSetListener = new TimePickerDialog.OnTimeSetListener() {
 		    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-		        	//updateDisplay();
-		    		TextView tv = (TextView) findViewById(R.id.currenttime);
-		    		Current_date(tv);
-		    		StringBuilder sb = new StringBuilder()
-		    		.append(df.format(hourOfDay))
-		    		.append(":")
-		    		.append(df.format(minute));
-		    		
-		    		tv.setText(sb);
+		    	
+		    	// 初期表示時刻を設定(画面表示されている時刻)
+		    	StringBuilder sb = new StringBuilder()
+				.append(df.format(hourOfDay))
+				.append(":")
+				.append(df.format(minute));
+				Current_date(tv);
+	    		tv.setText(sb);
 		    }
 		};
 		
 		//時刻設定ダイアログの作成
 		timePickerDialog = new TimePickerDialog(TopActivity.this, TimeSetListener, hourOfDay, minute, is24HourView);
-		timePickerDialog.setTitle("時間設定");
+		//timePickerDialog.setTitle("時間設定");
 		timePickerDialog.setMessage("出退勤時刻設定");
 		timePickerDialog.show();
 		
@@ -162,8 +167,8 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 * チェックボックスチェック時の処理
 	 */
 	public void checkBoxChange() {
-		final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
 		final Button inibtn = (Button) findViewById(R.id.ini);
+		final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
 		inibtn.setVisibility(View.INVISIBLE);
 		
 		if (checkBox.isChecked() == true) {
@@ -177,36 +182,78 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 */
 	public void AttendChange() {
 		final Button attendbtn = (Button) findViewById(R.id.attendance);
-		final TextView tv = (TextView) findViewById(R.id.start_time2);
-		Current_date(tv);
+		final TextView start_tv = (TextView) findViewById(R.id.start_time2);
 		
-		if (attendbtn.isEnabled() == true) {
+		// 出勤マスタへDB登録（画面で設定した時刻）
+		TextView atd_tv = (TextView) findViewById(R.id.currenttime);
+		TopDao td = new TopDao(getApplicationContext());
+		
+		String currenttime = timestamp_sdf.format(Calendar.getInstance().getTime());
+		final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
+		boolean atd_flg;
+		
+		if (checkBox.isChecked() == true) {
+			//現在時刻使用チェック時、現在時刻で退勤時刻を記録
+			td.AttendanceSave(sdf.format(date), currenttime, null);
+			atd_flg = td.AttendanceSave(sdf.format(date), currenttime, null);
+		} else {
+			td.AttendanceSave(sdf.format(date), currenttime, atd_tv);
+			atd_flg = td.AttendanceSave(sdf.format(date), currenttime, atd_tv);
+        }
+		
+		// 既に退勤済みの場合
+		if (atd_flg == false) {
 			Toast.makeText(TopActivity.this,
-		    "出勤",
+		    "既に退勤済みです",
 		    Toast.LENGTH_SHORT).show();
+		} else {
+			if (attendbtn.isEnabled() == true) {
+				Toast.makeText(TopActivity.this,
+			    "出勤",
+			    Toast.LENGTH_SHORT).show();
+			}
 		}
+		td.AttendanceTimeDisp(sdf.format(date),start_tv);
 	}
+	
 	/*
 	 * 退勤ボタン押下処理
 	 */
 	public void LeaveofficeChange() {
         final Button leaveofficebtn = (Button) findViewById(R.id.leaveoffice);
-		final TextView tv = (TextView) findViewById(R.id.last_time2);
-		Current_date(tv);
-        
+        final TextView start_tv = (TextView) findViewById(R.id.start_time2); // 始業時刻
+    	final TextView end_tv = (TextView) findViewById(R.id.last_time2); 	// 終業時刻
+    	final TextView break_tv = (TextView) findViewById(R.id.bleak_time2); // 休憩時間
+    	final TextView sumtime_tv = (TextView) findViewById(R.id.sum_time2); // 合計時間
+
         if (leaveofficebtn.isEnabled() == true) {
         	Toast.makeText(TopActivity.this,
             "退勤",
             Toast.LENGTH_SHORT).show();
         }
-
+        
+        // 退勤マスタ・休憩マスタへDB登録（画面で設定した時刻）
+		TextView leave_tv = (TextView) findViewById(R.id.currenttime);
+		TopDao td = new TopDao(getApplicationContext());
+		
+		String currenttime = timestamp_sdf.format(Calendar.getInstance().getTime());
+		final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
+		
+		if (checkBox.isChecked() == true) {
+			//現在時刻使用チェック時、現在時刻で退勤時刻を記録
+			td.LeaveofficeSave(sdf.format(date), currenttime, null);
+		} else {
+			td.LeaveofficeSave(sdf.format(date), currenttime, leave_tv);
+        }
+		td.preBreakSave(sdf.format(date), currenttime);
+        td.TopTimeDisp(sdf.format(date),start_tv, end_tv, break_tv, sumtime_tv);
 	}
 	
 
 	/*
-	 * 現在時刻表示
+	 * デフォルト画面表示
 	 * */
-	public void CurrentDateDisp() {
+	public void CurrentDisp() {
 
 		Calendar calender = Calendar.getInstance();
         int week = calender.get(Calendar.DAY_OF_WEEK)-1;//1(日曜)～7(土曜)
@@ -221,6 +268,12 @@ public class TopActivity extends Activity implements View.OnClickListener
         // 現在時刻表示
         TextView tv = (TextView)findViewById(R.id.currenttime);
         Current_date(tv);
+        
+        // チェックボックス true 設定ボタン非表示
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
+    	checkBox.setChecked(true);
+    	Button inibtn = (Button) findViewById(R.id.ini);
+		inibtn.setVisibility(View.INVISIBLE);
 	}
 	
 
@@ -251,17 +304,31 @@ public class TopActivity extends Activity implements View.OnClickListener
     
     // メニューが選択された時の処理
     public boolean onOptionsItemSelected(MenuItem item) {
+    	final Intent intent = new Intent();
+        
         switch (item.getItemId()) {
         case MENU_ID_A:
-        	Intent intent = new Intent();
-            intent.setClassName(
+        	intent.setClassName(
                     "jp.co.timecard",
                     "jp.co.timecard.MonthlyActivity");
             startActivity(intent);
             return true;
-     
+            
         case MENU_ID_B:
-            Toast.makeText(this, "設定", Toast.LENGTH_LONG).show();
+            final CharSequence[] items = {"基本設定"};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("設定");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                	intent.setClassName(
+                            "jp.co.timecard",
+                            "jp.co.timecard.BaseSetListActivity");
+                    startActivity(intent);
+                }
+            });
+            builder.create();
+            builder.show();
             return true;
      
         case MENU_ID_C:
