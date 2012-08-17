@@ -5,16 +5,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * データベースの作成、更新を行う。
- * @version 1.0
- * @author Tomohiro Tano
- */
+* データベースの作成、更新を行う。
+* @version 1.0
+* @author Tomohiro Tano
+*/
 public class DbOpenHelper extends SQLiteOpenHelper {
 
     /**
-     * コンストラクタ
-     * @param context コンテキスト
-     */
+* コンストラクタ
+* @param context コンテキスト
+*/
     public DbOpenHelper(Context context) {
         super(context, DbConstants.DATABASE_NAME, null, DbConstants.DATABASE_VERSION);
     }
@@ -25,17 +25,19 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.execSQL(DbConstants.CREATE_TABLE2);
         db.execSQL(DbConstants.CREATE_TABLE3);
         db.execSQL(DbConstants.CREATE_TABLE4);
+        db.execSQL(DbConstants.CREATE_TABLE5);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        String []DATABASE_UPDATE = {DbConstants.DATABASE_UPDATE1,
-    								DbConstants.DATABASE_UPDATE2,
-    								DbConstants.DATABASE_UPDATE3,
-    								DbConstants.DATABASE_UPDATE4};
+        /*String []DATABASE_UPDATE = {DbConstants.DATABASE_UPDATE1,
+         DbConstants.DATABASE_UPDATE2,
+	     DbConstants.DATABASE_UPDATE3,
+	     DbConstants.DATABASE_UPDATE4,
+	     DbConstants.DATABASE_UPDATE5};
         for (int i=0; i<DATABASE_UPDATE.length; i++) {
-        	db.execSQL(DATABASE_UPDATE[i]);
+         db.execSQL(DATABASE_UPDATE[i]);
         }
-        onCreate(db);
+        onCreate(db);*/
     }
 }
