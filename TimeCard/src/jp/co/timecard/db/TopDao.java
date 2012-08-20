@@ -274,7 +274,8 @@ public class TopDao {
 				Date at = sdf.parse(attendance_time);
 				Date lt = sdf.parse(leave_time);
 				Date bt = sdf.parse(break_time);
-				long sumtime = lt.getTime() - at.getTime() - bt.getTime();
+				long sumtime = lt.getTime() - at.getTime() - bt.getTime()+1000*60*60*6;
+				//long sumtime = lt.getTime() - at.getTime() - bt.getTime();
 				
 				// 秒を時間に変換、合計時間がマイナスの時は00:00
 				if (sumtime < 0) {
