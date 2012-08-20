@@ -22,10 +22,10 @@ public class DailyActivity extends Activity {
 
 		Button bAttendance = (Button) findViewById(R.id.button_set_attendance);
 		bAttendance.setOnClickListener(new MyListener(R.id.daily_attendance));
-		
+
 		Button bLeave = (Button) findViewById(R.id.button_set_leave);
 		bLeave.setOnClickListener(new MyListener(R.id.daily_leave));
-		
+
 		Button bBreak = (Button) findViewById(R.id.button_set_break);
 		bBreak.setOnClickListener(new MyListener(R.id.daily_break));
 	}
@@ -35,10 +35,10 @@ public class DailyActivity extends Activity {
 		int hourOfDay;
 		int minute;
 		boolean is24HourView = true;
-		
+
 		public MyListener(int layout_id) {
 			super();
-			
+
 			switch (layout_id) {
 			case R.id.daily_attendance:
 			case R.id.daily_leave:
@@ -50,8 +50,8 @@ public class DailyActivity extends Activity {
 				break;
 			}
 		}
-		
-		// 各ボタンのリスナー 
+
+		// 各ボタンのリスナー
 		public void onClick(View v) {
 			// attendance,leaveなら現在時刻とする breakなら初期化時の1を使用
 			if (hourOfDay != 1) {
@@ -60,7 +60,7 @@ public class DailyActivity extends Activity {
 				minute = calendar.get(Calendar.MINUTE);
 				is24HourView = true;
 			}
-			
+
 			new TimePickerDialog(DailyActivity.this, new TPDialogListener(layout_id), hourOfDay, minute, is24HourView).show();
 		}
 
@@ -75,13 +75,13 @@ public class DailyActivity extends Activity {
 			@Override
 			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 				Dao dao = new Dao(DailyActivity.this);
-				
-				// TODO uniqなkintaiIdを採番する。 
+
+				// TODO uniqなkintaiIdを採番する。
 				Kintai kintai = new Kintai();
 				kintai.init();
-				
+
 				Calendar calendar = Calendar.getInstance();
-				
+
 				// TODO setAll的なの欲しい
 				Attendance attendance = new Attendance();
 				attendance.setAttendanceId(1);
@@ -89,10 +89,10 @@ public class DailyActivity extends Activity {
 				attendance.setAttendanceDate(calendar.getTime());
 				attendance.setAttendanceTime(calendar.getTime());
 				attendance.setRegistDatetime(calendar.getTime());
-							
+
 				dao.preSave(calendar.getTime());
 				dao.save(attendance);
-				
+
 				TextView tv = (TextView) findViewById(layout_id);
 				DecimalFormat df = new DecimalFormat("00");
 				StringBuilder sb = new StringBuilder()

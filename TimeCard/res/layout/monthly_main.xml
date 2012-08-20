@@ -17,7 +17,7 @@
             android:textSize="20dip"
             android:textStyle="bold"
             android:layout_width="0dip"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:gravity="center"
             android:layout_weight="3"/>
         <Button
@@ -33,24 +33,27 @@
             <TextView
                 android:text="日付"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"/>
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"/>
             <TextView
                 android:text="始業"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"/>
             <TextView
                 android:text="終業"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"/>
             <TextView
                 android:text="合計"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:layout_weight="2"/>
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"/>
     </TableRow>
     <ListView
         android:id="@+id/listview"

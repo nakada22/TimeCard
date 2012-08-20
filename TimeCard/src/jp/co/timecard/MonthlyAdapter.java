@@ -1,7 +1,7 @@
 package jp.co.timecard;
 
 import java.util.ArrayList;
-import jp.co.timecard.MonthlyActivity.DailyState;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,16 +50,16 @@ public class MonthlyAdapter extends ArrayAdapter<DailyState> {
         DailyState item = list.get(position);
         if (item != null) {
             if (holder.date != null) {
-            	holder.date.setText(item.date);
+            	holder.date.setText(item.getDate());
             }
             if (holder.attendance != null) {
-            	holder.attendance.setText(item.attendance);
+            	holder.attendance.setText(item.getAttendance());
             }
             if (holder.leave != null) {
-            	holder.leave.setText(item.leave);
+            	holder.leave.setText(item.getLeave());
             }
             if (holder.work_hour != null) {
-            	holder.work_hour.setText(item.work_hour);
+            	holder.work_hour.setText(item.getWorkHour());
             }
         }
         return view;
