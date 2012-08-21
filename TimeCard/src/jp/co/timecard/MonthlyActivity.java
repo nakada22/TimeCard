@@ -142,9 +142,10 @@ import android.widget.TextView;
 		for(int i = 1; i <= dom; i++) {
 			// TODO DBから勤怠を取得してくる（なければ空欄）
 			DailyState ds = new DailyState();
-			ds.setDate(String.valueOf(i));
+			ds.setDate(mYear + "/" + mMonth + "/" +String.valueOf(i));
 			ds.setAttendance("09:00");
 			ds.setLeave("17:00");
+			ds.setBreakTime("1:00");
 			ds.setWorkHour("08:00");
 			dayOfMonth.add(ds);
 		}

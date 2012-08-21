@@ -12,6 +12,7 @@ public class DailyState implements Serializable {
 	private String date;
 	private String attendance;
 	private String leave;
+	private String break_time;
 	private String work_hour;
 
 	public void setDate(String _date) {
@@ -37,5 +38,11 @@ public class DailyState implements Serializable {
 	}
 	public String getWorkHour() {
 		return this.work_hour;
+	}
+	public String getBreakTime() {
+		return this.break_time;
+	}
+	public void setBreakTime(String _break_time) {
+		this.break_time = _break_time;
 	}
 }
