@@ -2,37 +2,117 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:layout_gravity="right"
+    android:background="#FFFFFF"
     android:orientation="vertical" >
 
+<TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@layout/top_back" >
+    <TableRow>
+	<ImageView
+	    android:src="@drawable/dakoku"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	/>
+	<ImageView
+	    	android:layout_marginLeft="100sp"
+	        android:src="@drawable/dakoku"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	    />   
+   </TableRow>
+   
+
+  	<TableRow
+  	    android:layout_width="fill_parent">
+
+
+
+
+
+
+
+
+  	     <ImageButton
+  	         android:id="@+id/attendance"
+  	         android:layout_width="0dip"
+  	         android:layout_height="wrap_content"
+  	         android:layout_weight="1"
+  	         android:background="@null"
+  	         android:padding="0px"
+  	         android:src="@drawable/atendance" />
+  	     
+
+
+
+
+
+  	    <ImageButton
+  	        android:id="@+id/leaveoffice"
+  	        android:layout_width="0dip"
+  	        android:layout_height="wrap_content"
+  	        android:layout_weight="1"
+  	        android:background="@null"
+  	        android:padding="0px"
+  	        android:src="@drawable/leave" />
+
+
+
+
+
+
+
+  	    <ImageButton
+  	        android:id="@+id/tsukiji"
+  	        android:layout_width="0dip"
+  	        android:layout_height="wrap_content"
+  	        android:layout_margin="0px"
+  	        android:layout_weight="1"
+  	        android:background="@null"
+  	        android:padding="0px"
+  	        android:src="@drawable/tsukiji" />
+
+  	</TableRow>
+        
+</TableLayout>
+	
     <CheckBox
         android:id="@+id/checkBox1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/CheckBox" />
-    <TextView
+        android:text="@string/CheckBox"
+        android:textColor="#000000" />
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    
+
+
+       <TableRow>
+       <TextView
         android:id="@+id/datetime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
+        android:textColor="#000000"
          />
-    <TableLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-
-        <TableRow>
+            
             <TextView
         android:id="@+id/currenttime"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="80sp"
+        android:textSize="30sp"
+        android:textColor="#000000"
          /> 
          
          <Button
           android:id="@+id/ini"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginLeft="30sp"
+          android:layout_marginLeft="20sp"
           android:text="設定" />
 		</TableRow>
     </TableLayout>
@@ -40,8 +120,9 @@
     <TableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" >
-        
+        android:layout_marginTop="5dp" >
+
+<!-- 
     <TableRow>
 	    <Button
 	    android:id="@+id/attendance"
@@ -58,6 +139,7 @@
 	    android:text="退勤" 
 	    android:textSize="45sp"/>
    </TableRow>
+    -->
 	</TableLayout>
     
     
@@ -83,8 +165,9 @@
 	        android:id="@+id/start_time"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	  	    android:text="始業時刻" 
+	  	    android:text="出勤時刻" 
 	        android:textSize="20sp"
+	        android:textColor="#000000"
 	         /> 
 
 		<TextView
@@ -94,24 +177,26 @@
 		    android:layout_gravity="right"
 		    android:layout_marginLeft="90dp"
 		    android:scrollHorizontally="true"
-		    android:textSize="20sp" />
+		    android:textSize="20sp"
+		    android:textColor="#000000"
+		     />
 		
 	    </TableRow>
-		
-		
-		
+	    
 	    <TextView
 		android:id="@+id/textView_line2"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
+		android:textColor="#000000"
 		/>    
 		<TableRow >
 		<TextView
 	        android:id="@+id/last_time"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	  	    android:text="終業時刻" 
+	  	    android:text="退勤時刻" 
 	        android:textSize="20sp"
+	        android:textColor="#000000"
 	         /> 
 		<TextView
 		    android:id="@+id/last_time2"
@@ -120,7 +205,8 @@
 		    android:layout_gravity="right"
 		    android:layout_marginLeft="90dp"
 		    android:scrollHorizontally="true"
-		    android:textSize="20sp" />
+		    android:textSize="20sp"
+		    android:textColor="#000000" />
 		
 	    </TableRow>
 	    
@@ -131,6 +217,7 @@
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="0px"
+		android:textColor="#000000"
 		/>
 	    <TableRow >
 		<TextView
@@ -140,6 +227,7 @@
 	        android:layout_marginTop="0dp"
 	  	    android:text="休憩時間" 
 	        android:textSize="20sp"
+	        android:textColor="#000000"
 	         /> 
 		<TextView
 		    android:id="@+id/bleak_time2"
@@ -148,22 +236,19 @@
 		    android:layout_gravity="right"
 		    android:layout_marginLeft="90dp"
 		    android:scrollHorizontally="true"
-		    android:textSize="20sp" />
+		    android:textSize="20sp"
+		    android:textColor="#000000" />
 		</TableRow>
 		
 	    <TextView
 		android:id="@+id/textView_line4"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="10dp"
+
+		android:textColor="#000000"
 		/>  
 		
-		<TextView
-		android:id="@+id/textView_line5"
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-		/>
-		
+
 		<TableRow >
 		<TextView
 	        android:id="@+id/sum_time"
@@ -172,6 +257,7 @@
 	        android:layout_marginTop="0dp"
 	  	    android:text="合計時間" 
 	        android:textSize="20sp"
+	        android:textColor="#000000"
 	         />  
 	    <TextView
 		    android:id="@+id/sum_time2"
@@ -180,7 +266,8 @@
 		    android:layout_gravity="right"
 		    android:layout_marginLeft="90dp"
 		    android:scrollHorizontally="true"
-		    android:textSize="20sp" />
+		    android:textSize="20sp"
+		    android:textColor="#000000" />
 	    </TableRow>
     </TableLayout>
     
