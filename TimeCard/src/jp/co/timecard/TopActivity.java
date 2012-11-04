@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -47,6 +48,8 @@ public class TopActivity extends Activity implements View.OnClickListener
         findViewById(R.id.attendance).setOnClickListener(this);
         findViewById(R.id.leaveoffice).setOnClickListener(this);
         findViewById(R.id.ini).setOnClickListener(this);
+        findViewById(R.id.tsukiji).setOnClickListener(this);
+        
         
         mYear = c.get(Calendar.YEAR);
 		mMonth = c.get(Calendar.MONTH) + 1;
@@ -58,13 +61,11 @@ public class TopActivity extends Activity implements View.OnClickListener
         TextView textView_line2 = (TextView) findViewById(R.id.textView_line2);
         TextView textView_line3 = (TextView) findViewById(R.id.textView_line3);
         TextView textView_line4 = (TextView) findViewById(R.id.textView_line4);
-        TextView textView_line5 = (TextView) findViewById(R.id.textView_line5);
         
         textView_line.setBackgroundResource(R.layout.line);
         textView_line2.setBackgroundResource(R.layout.line);
         textView_line3.setBackgroundResource(R.layout.line);
         textView_line4.setBackgroundResource(R.layout.line);
-        textView_line5.setBackgroundResource(R.layout.line);
 
 	    CurrentDisp();
         TopPreInsert();
@@ -84,6 +85,9 @@ public class TopActivity extends Activity implements View.OnClickListener
 			break;			
 		case R.id.ini:
 			IniChange();
+			break;
+		case R.id.tsukiji:
+			MonthlyListChange();
 			break;
 		default:
 			break;
@@ -181,7 +185,11 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 * 出勤ボタン押下処理
 	 */
 	public void AttendChange() {
-		final Button attendbtn = (Button) findViewById(R.id.attendance);
+		
+		final ImageButton imgbutton = new ImageButton(this);
+	    imgbutton.setImageResource(R.drawable.atendance);
+	    
+		//final Button attendbtn = (Button) findViewById(R.id.attendance);
 		final TextView start_tv = (TextView) findViewById(R.id.start_time2);
 		
 		// 出勤マスタへDB登録（画面で設定した時刻）
@@ -207,7 +215,8 @@ public class TopActivity extends Activity implements View.OnClickListener
 		    "既に退勤済みです",
 		    Toast.LENGTH_SHORT).show();
 		} else {
-			if (attendbtn.isEnabled() == true) {
+			//if (attendbtn.isEnabled() == true) {
+			if (imgbutton.isEnabled() == true) {
 				Toast.makeText(TopActivity.this,
 			    "出勤",
 			    Toast.LENGTH_SHORT).show();
@@ -220,13 +229,16 @@ public class TopActivity extends Activity implements View.OnClickListener
 	 * 退勤ボタン押下処理
 	 */
 	public void LeaveofficeChange() {
-        final Button leaveofficebtn = (Button) findViewById(R.id.leaveoffice);
+		final ImageButton leaveimgbutton = new ImageButton(this);
+		leaveimgbutton.setImageResource(R.drawable.leave);
+	    
+        //final Button leaveofficebtn = (Button) findViewById(R.id.leaveoffice);
         final TextView start_tv = (TextView) findViewById(R.id.start_time2); // 始業時刻
     	final TextView end_tv = (TextView) findViewById(R.id.last_time2); 	// 終業時刻
     	final TextView break_tv = (TextView) findViewById(R.id.bleak_time2); // 休憩時間
     	final TextView sumtime_tv = (TextView) findViewById(R.id.sum_time2); // 合計時間
 
-        if (leaveofficebtn.isEnabled() == true) {
+        if (leaveimgbutton.isEnabled() == true) {
         	Toast.makeText(TopActivity.this,
             "退勤",
             Toast.LENGTH_SHORT).show();
@@ -249,7 +261,22 @@ public class TopActivity extends Activity implements View.OnClickListener
         td.TopTimeDisp(sdf.format(date),start_tv, end_tv, break_tv, sumtime_tv);
 	}
 	
-
+	/*
+	 * 月次リストボタンクリック時の処理
+	 * */
+	public void MonthlyListChange() {
+		final ImageButton monthlstimgbtn = new ImageButton(this);
+		monthlstimgbtn.setImageResource(R.drawable.tsukiji);
+		final Intent intent = new Intent();
+		
+		intent.setClassName(
+                "jp.co.timecard",
+                "jp.co.timecard.MonthlyActivity");
+        startActivity(intent);
+		
+	}
+	
+    
 	/*
 	 * デフォルト画面表示
 	 * */
