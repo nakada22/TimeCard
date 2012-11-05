@@ -80,13 +80,14 @@ import android.widget.TextView;
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item){
 		 switch(item.getItemId()){
-		 case R.id.settings:
-
-			 break;
+		 //case R.id.settings:
+		 //	 Intent i = new Intent(MonthlyActivity.this, SettingActivity.class);
+		 //	 startActivity(i);
+		 //	 break;
 
 		 case R.id.return_top:
-			 Intent i = new Intent(this, TopActivity.class);
-			 startActivity(i);
+			 Intent i2 = new Intent(this, TopActivity.class);
+			 startActivity(i2);
 			 finish();
 			 break;
 
@@ -142,7 +143,8 @@ import android.widget.TextView;
 		for(int i = 1; i <= dom; i++) {
 			// TODO DBから勤怠を取得してくる（なければ空欄）
 			DailyState ds = new DailyState();
-			ds.setDate(mYear + "/" + mMonth + "/" +String.valueOf(i));
+			int crrent_mMonth = mMonth+1; 
+			ds.setDate(mYear + "/" + crrent_mMonth + "/" +String.format("%1$02d", i));
 			ds.setAttendance("09:00");
 			ds.setLeave("17:00");
 			ds.setBreakTime("1:00");
