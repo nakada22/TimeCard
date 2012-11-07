@@ -193,7 +193,6 @@ public class DailyActivity extends Activity {
 				attendance.setAttendanceTime(calendar.getTime());
 				attendance.setRegistDatetime(calendar.getTime());
 
-				dao.preSave(calendar.getTime());
 				dao.save(attendance);
 
 				TextView tv = (TextView) findViewById(layout_id);
