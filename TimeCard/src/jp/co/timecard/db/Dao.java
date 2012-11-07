@@ -19,28 +19,45 @@ public class Dao {
 	public Dao(Context context) {
 		helper = new DbOpenHelper(context);
 	}
-
-	// TODO 勤怠IDをまず登録・採番してから、そのIDを元に他のデータを登録する？？
-	// TODO トランザクション
-	// TODO saveから呼び出されるように　privateに
-	// TODO insertしたら結果返すっていうメソッドがありそうなもんだけど。。。そしたらload()いらない。
+	
 	/*
-	 * 各テーブルの登録前に、外部キーとして使用される勤怠IDを登録し、勤怠クラスを取得・返却する。
-	 */
-	public Kintai preSave(Date date) {
+	 * 月次画面の勤怠情報を取得
+	 * */
+	public String[] MonthlyList(String date){
 		SQLiteDatabase db = helper.getWritableDatabase();
-		Kintai kintai = null;
-		ContentValues cv = new ContentValues();
-		try {
-			cv.put(DbConstants.COLUMN_KINTAI_DATE, date.toString());
-			db.insert(DbConstants.TABLE_NAME1, null, cv);
-			kintai = load(date);
-		} finally {
-			db.close();
+		String[] bindStr = new String[]{date};
+		String kintai_list[] = new String[3];
+		
+		// まずは勤怠ID取得
+		Cursor c = db.rawQuery("SELECT mk.kintai_id, mk.kintai_date FROM " +
+				"mst_kintai mk" + " WHERE mk." + DbConstants.COLUMN_KINTAI_DATE + "=?", bindStr);
+		if (c.moveToFirst()){
+			String kintai_id = c.getString(0);
+			
+			//勤怠IDを元に出勤時刻・退勤時刻・休憩時間を取得
+			Cursor c2 = db.rawQuery("SELECT ma.attendance_time, ml.leaveoffice_time, mb.break_time FROM" +
+					" mst_attendance ma, mst_leaveoffice ml, mst_break mb WHERE ma.kintai_id=" + kintai_id + 
+					" AND ma.kintai_id = ml.kintai_id AND ma.kintai_id = mb.kintai_id", null);
+			
+			if (c2.moveToFirst()){
+				if (c2.getCount() != 0) {
+					kintai_list[0] = c2.getString(c2.getColumnIndex("attendance_time"));
+					kintai_list[1] = c2.getString(c2.getColumnIndex("leaveoffice_time"));
+					kintai_list[2] = c2.getString(c2.getColumnIndex("break_time"));
+				} else {
+					kintai_list[0] = "";
+					kintai_list[1] = "";
+				}
+			}
+		} else {
+			kintai_list[0] = "";
+			kintai_list[1] = "";
 		}
-		return kintai;
+		db.close();
+		return kintai_list;
 	}
-
+	
+	
 	// TODO sdfパース処理はutilなものとして、切り出しといた方がよさそう
 	/*
 	 * 勤怠年月日を元に、勤怠クラスを返却する。
@@ -72,7 +89,6 @@ public class Dao {
 		}
 		return kintai;
 	}
-
 	// TODO マッピングクラス全部を引数としてとれたら良い
 	public void save(Attendance attendance) {
 		SQLiteDatabase db = helper.getWritableDatabase();

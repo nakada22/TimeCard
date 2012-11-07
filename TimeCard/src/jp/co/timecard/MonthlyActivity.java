@@ -1,7 +1,9 @@
 package jp.co.timecard;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import jp.co.timecard.db.Dao;
 import android.app.Activity;
@@ -143,13 +145,32 @@ import android.widget.TextView;
 		for(int i = 1; i <= dom; i++) {
 			// TODO DBから勤怠を取得してくる（なければ空欄）
 			DailyState ds = new DailyState();
-			int crrent_mMonth = mMonth+1; 
-			ds.setDate(mYear + "/" + crrent_mMonth + "/" +String.format("%1$02d", i));
-			ds.setAttendance("09:00");
-			ds.setLeave("17:00");
-			ds.setBreakTime("1:00");
-			ds.setWorkHour("08:00");
-			dayOfMonth.add(ds);
+			String crrent_mMonth = String.format("%1$02d",mMonth+1); 
+			String disp_date = mYear + "/" + crrent_mMonth + "/" + String.format("%1$02d", i);
+			ds.setDate(disp_date);
+			
+			// 戻り値より出勤時刻・退勤時刻を取得
+			String[] daily_param = dao.MonthlyList(disp_date);
+			String attendance_time = daily_param[0];
+			String leaveoffice_time = daily_param[1];
+			String break_time = daily_param[2];
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+			//try{
+				// TODO 合計時間計算
+			//Date at = sdf.parse(attendance_time);
+			//	Date lt = sdf.parse(leaveoffice_time);
+			//	Date bt = sdf.parse(break_time);
+			//	long sumtime = lt.getTime() - at.getTime()- bt.getTime()+1000*60*60*6;
+				
+				ds.setAttendance(attendance_time);
+				ds.setLeave(leaveoffice_time);
+				ds.setBreakTime(break_time);
+				//ds.setWorkHour(String.valueOf(sumtime));
+				dayOfMonth.add(ds);
+			//}catch(java.text.ParseException e){
+			//	e.printStackTrace();
+			//}
 		}
 
 		MonthlyAdapter la = new MonthlyAdapter(getApplicationContext(),
