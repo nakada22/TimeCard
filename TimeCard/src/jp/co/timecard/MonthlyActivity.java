@@ -1,5 +1,6 @@
 package jp.co.timecard;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -143,7 +144,7 @@ import android.widget.TextView;
 
 		int dom = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		for(int i = 1; i <= dom; i++) {
-			// TODO DBから勤怠を取得してくる（なければ空欄）
+			//DBから勤怠を取得してくる（なければ空欄）
 			DailyState ds = new DailyState();
 			String crrent_mMonth = String.format("%1$02d",mMonth+1); 
 			String disp_date = mYear + "/" + crrent_mMonth + "/" + String.format("%1$02d", i);
@@ -151,26 +152,29 @@ import android.widget.TextView;
 			
 			// 戻り値より出勤時刻・退勤時刻を取得
 			String[] daily_param = dao.MonthlyList(disp_date);
-			String attendance_time = daily_param[0];
-			String leaveoffice_time = daily_param[1];
-			String break_time = daily_param[2];
+			String attendance_time = daily_param[0] != "" ? daily_param[0] : "";
+			String leaveoffice_time = daily_param[1] != "" ? daily_param[1] : "";
+			String break_time = daily_param[2] != "" ? daily_param[2] : "";
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-			//try{
-				// TODO 合計時間計算
-			//Date at = sdf.parse(attendance_time);
-			//	Date lt = sdf.parse(leaveoffice_time);
-			//	Date bt = sdf.parse(break_time);
-			//	long sumtime = lt.getTime() - at.getTime()- bt.getTime()+1000*60*60*6;
+			try{
+				//合計時間計算
+				Date at = attendance_time != "" ? sdf.parse(attendance_time) : null;
+				Date lt = leaveoffice_time != "" ? sdf.parse(leaveoffice_time): null;
+				Date bt = break_time != "" ? sdf.parse(break_time) : null;
+				if (at != null && lt != null && bt != null){
+					// 全ての時間があれば合計時間計算、セット
+					long sumtime = lt.getTime() - at.getTime()- bt.getTime()+1000*60*60*6;
+					ds.setWorkHour(sdf.format(sumtime));
+				}
 				
 				ds.setAttendance(attendance_time);
 				ds.setLeave(leaveoffice_time);
 				ds.setBreakTime(break_time);
-				//ds.setWorkHour(String.valueOf(sumtime));
 				dayOfMonth.add(ds);
-			//}catch(java.text.ParseException e){
-			//	e.printStackTrace();
-			//}
+			}catch(java.text.ParseException e){
+				e.printStackTrace();
+			}
 		}
 
 		MonthlyAdapter la = new MonthlyAdapter(getApplicationContext(),
