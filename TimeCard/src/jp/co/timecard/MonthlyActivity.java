@@ -149,25 +149,23 @@ import android.widget.TextView;
 			String crrent_mMonth = String.format("%1$02d",mMonth+1); 
 			String disp_date = mYear + "/" + crrent_mMonth + "/" + String.format("%1$02d", i);
 			ds.setDate(disp_date);
-			
+
 			// 戻り値より出勤時刻・退勤時刻を取得
 			String[] daily_param = dao.MonthlyList(disp_date);
-			String attendance_time = daily_param[0] != "" ? daily_param[0] : "";
-			String leaveoffice_time = daily_param[1] != "" ? daily_param[1] : "";
-			String break_time = daily_param[2] != "" ? daily_param[2] : "";
-			
+			String attendance_time = daily_param[0];
+			String leaveoffice_time = daily_param[1];
+			String break_time = daily_param[2];
+
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 			try{
-				//合計時間計算
-				Date at = attendance_time != "" ? sdf.parse(attendance_time) : null;
-				Date lt = leaveoffice_time != "" ? sdf.parse(leaveoffice_time): null;
-				Date bt = break_time != "" ? sdf.parse(break_time) : null;
-				if (at != null && lt != null && bt != null){
+				if (attendance_time != "" && leaveoffice_time != "" && break_time != ""){
+					Date at = sdf.parse(attendance_time);
+					Date lt = sdf.parse(leaveoffice_time);
+					Date bt = sdf.parse(break_time);
 					// 全ての時間があれば合計時間計算、セット
 					long sumtime = lt.getTime() - at.getTime()- bt.getTime()+1000*60*60*6;
 					ds.setWorkHour(sdf.format(sumtime));
 				}
-				
 				ds.setAttendance(attendance_time);
 				ds.setLeave(leaveoffice_time);
 				ds.setBreakTime(break_time);
