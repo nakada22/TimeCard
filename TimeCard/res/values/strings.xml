@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="hello">Hello World, MainActivity!</string>
-    <string name="app_name">トップ画面</string>
+    <string name="app_name">STC</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_top">セラクタイムカード</string>
+    <string name="title_top">タイムカード</string>
     <string name="title_monthly">月次画面</string>
+    <string name="title_setting">設定画面</string>
     <string name="title_baseini">設定画面</string>
     <string name="CheckBox">現在の時刻を使用する</string>
-    
-    
-    
 </resources>
