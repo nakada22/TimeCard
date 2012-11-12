@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 public class DailyActivity extends Activity {
 
-	private int  mYear;
+	private int mYear;
 	private int mMonth;
 	private int mDay;
 
@@ -141,60 +141,62 @@ public class DailyActivity extends Activity {
 
 		public MyListener(int layout_id) {
 			super();
-
 			switch (layout_id) {
 			case R.id.daily_attendance:
 			case R.id.daily_leave:
 				this.layout_id = layout_id;
+				final TextView tv = (TextView) findViewById(layout_id);
+				
+				// 画面表示されている時刻取得
+				String disptime = String.valueOf(tv.getText());
+		    	hourOfDay = Integer.parseInt(disptime.substring(0, 2));
+		    	minute = Integer.parseInt(disptime.substring(3, 5));
+		    	is24HourView = true;
 				break;
 			case R.id.daily_break:
 				this.layout_id = layout_id;
-				this.hourOfDay = 1;
+				// TODO 休憩時間は画面表示されていないのでDBから取ってくる
+				this.hourOfDay = 1; // 休憩時間(仮で1時間をセット)
 				break;
 			}
 		}
 
 		// 各ボタンのリスナー
 		public void onClick(View v) {
-			// attendance,leaveなら現在時刻とする breakなら初期化時の1を使用
-			if (hourOfDay != 1) {
-				Calendar calendar = Calendar.getInstance();
-				hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-				minute = calendar.get(Calendar.MINUTE);
-				is24HourView = true;
+			TimePickerDialog timePickerDialog;
+			
+			timePickerDialog = new TimePickerDialog(DailyActivity.this, 
+					new TPDialogListener(layout_id), 
+					hourOfDay, minute, is24HourView);
+
+			// timePickerDialog時のメッセージ設定
+			switch (layout_id) {
+				case R.id.daily_attendance:
+					timePickerDialog.setMessage("始業時間設定");
+					break;
+				case R.id.daily_leave:
+					timePickerDialog.setMessage("終業時間設定");
+					break;
+				case R.id.daily_break:
+					timePickerDialog.setMessage("休憩時間設定");
+					break;
 			}
-
-			new TimePickerDialog(DailyActivity.this, new TPDialogListener(layout_id), hourOfDay, minute, is24HourView).show();
+			timePickerDialog.show();
 		}
-
+		
 		private class TPDialogListener implements TimePickerDialog.OnTimeSetListener {
 			int layout_id;
 
 			public TPDialogListener(int layout_id) {
 				super();
 				this.layout_id = layout_id;
+				
 			}
-
+			
 			@Override
 			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-				Dao dao = new Dao(DailyActivity.this);
-
-				// TODO uniqなkintaiIdを採番する。
-				Kintai kintai = new Kintai();
-				kintai.init();
-
-				Calendar calendar = Calendar.getInstance();
-
-				// TODO setAll的なの欲しい
-				Attendance attendance = new Attendance();
-				attendance.setAttendanceId(1);
-				attendance.setKintai(kintai);
-				attendance.setAttendanceDate(calendar.getTime());
-				attendance.setAttendanceTime(calendar.getTime());
-				attendance.setRegistDatetime(calendar.getTime());
-
-				dao.save(attendance);
-
+				
+				// TODO 設定した時刻をTPDialogの時刻に反映させたい。
 				TextView tv = (TextView) findViewById(layout_id);
 				DecimalFormat df = new DecimalFormat("00");
 				StringBuilder sb = new StringBuilder()
