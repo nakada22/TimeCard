@@ -15,7 +15,7 @@ import android.util.Log;
 public class Dao {
 
 	private DbOpenHelper helper = null;
-
+	
 	public Dao(Context context) {
 		helper = new DbOpenHelper(context);
 	}
@@ -65,7 +65,56 @@ public class Dao {
 		return kintai_list;
 	}
 
-
+	/*
+	 * 日次画面の時刻でDB更新
+	 * @param update_param[0] 出勤時刻
+	 * 
+	 * */
+	public void DailyUpdate(String[] update_param){
+		SQLiteDatabase db = helper.getWritableDatabase();
+		//ContentValues cv = new ContentValues();
+		
+		try {
+			String[] put_key = new String[]{"attendance_time",
+					"leaveoffice_time","break_time"};
+			String[] put_table = new String[]{"mst_attendance",
+					"mst_leaveoffice","mst_break"};
+			String[] put_pos = new String[]{"attendance_date",
+					"leaveoffice_date","kintai_id"};
+			
+			// 画面表示されている日付よりkintai_idを取得してくる
+			Cursor c = db.rawQuery("SELECT mk.kintai_id FROM " +
+					"mst_kintai mk" + " WHERE mk.kintai_date=?", 
+					new String[]{update_param[3]});
+			
+			if (c.moveToFirst()){
+				String kintai_id = c.getString(0);
+				//Log.d("debug",String.valueOf(put_key.length));
+				
+				// 休憩時間(i=2)だけはkintai_idをキーに更新しないといけない
+				// TODO 出勤時刻のみ記録しかないと、正常にUpdateされない
+				for (int i = 0; i < put_key.length; i++){
+					//Log.d("debug",update_param[3]);
+					ContentValues cv = new ContentValues();
+					// 更新データ生成
+					cv.put(put_key[i], update_param[i]);
+					db.update(put_table[i], cv, put_pos[i]+"=?",
+							(i != 2) ? new String[]{update_param[3]} : new String[]{kintai_id});
+				}
+				
+			}
+			
+		} finally {
+			db.close();
+		}
+		
+		
+		
+		
+	}
+	
+	
+	
 	// TODO sdfパース処理はutilなものとして、切り出しといた方がよさそう
 	/*
 	 * 勤怠年月日を元に、勤怠クラスを返却する。

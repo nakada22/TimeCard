@@ -4,13 +4,11 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 
 import jp.co.timecard.db.Dao;
-import jp.co.timecard.db.mapping.Attendance;
-import jp.co.timecard.db.mapping.Kintai;
-import android.R.string;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -41,12 +39,12 @@ public class DailyActivity extends Activity {
 		Intent i = getIntent();
 		DailyState ds = (DailyState) i.getSerializableExtra("DailyState");
 
-		// 画面繊維直後の表示
-		String date = ds.getDate();
-		String attendance = ds.getAttendance();
-		String leave = ds.getLeave();
-		String break_time= ds.getBreakTime();
-
+		//TODO 画面遷移直後の表示(月次画面リストで値がない場合は、mst_initimeの値をセットとする)
+		final String date = ds.getDate();
+		String attendance = ds.getAttendance().length()!= 0 ? ds.getAttendance() : "09:00";
+		String leave = ds.getLeave().length()!= 0 ? ds.getLeave() : "18:00";
+		String break_time= ds.getBreakTime().length()!= 0 ? ds.getBreakTime() : "01:00";
+		
 		String str= new String(date);
 		String[] strArray = str.split("/");
 
@@ -59,12 +57,13 @@ public class DailyActivity extends Activity {
 		tvAttendance = (TextView) findViewById(R.id.daily_attendance);
 		tvLeave = (TextView) findViewById(R.id.daily_leave);
 		tvBreak = (TextView) findViewById(R.id.daily_break);
-
+		
 		tvDate.setText(strArray[1]+"月" + strArray[2]+"日");
 		tvAttendance.setText(attendance);
 		tvLeave.setText(leave);
 		tvBreak.setText(break_time);
-
+		
+		// 「前」ボタン
 		Button bPre = (Button) findViewById(R.id.button_pre_day);
 		bPre.setOnClickListener(new OnClickListener() {
 			@Override
@@ -73,7 +72,8 @@ public class DailyActivity extends Activity {
 				setTargetDay(PRE_DAY);
 			}
 		});
-
+		
+		// 「次」ボタン
 		Button bNex = (Button) findViewById(R.id.button_next_day);
 		bNex.setOnClickListener(new OnClickListener() {
 			@Override
@@ -82,24 +82,35 @@ public class DailyActivity extends Activity {
 				setTargetDay(NEX_DAY);
 			}
 		});
-
+		
+		// 始業時間「設定」ボタン
 		Button bAttendance = (Button) findViewById(R.id.button_set_attendance);
 		bAttendance.setOnClickListener(new MyListener(R.id.daily_attendance));
-
+		
+		// 終業時間「設定」ボタン
 		Button bLeave = (Button) findViewById(R.id.button_set_leave);
 		bLeave.setOnClickListener(new MyListener(R.id.daily_leave));
-
+		
+		// 休憩時間「設定」ボタン
 		Button bBreak = (Button) findViewById(R.id.button_set_break);
 		bBreak.setOnClickListener(new MyListener(R.id.daily_break));
-
+		
+		// 「登録」ボタン
 		Button bRegist = (Button) findViewById(R.id.button_regist);
 		bRegist.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO 自動生成されたメソッド・スタブ
-				Toast.makeText(getApplicationContext(), "DBに登録しました", Toast.LENGTH_LONG).show();
+				// 出勤マスタ・退勤マスタ・休憩マスタへDB更新（画面で設定した時刻）
+				Dao dao = new Dao(getApplicationContext());
+				dao.DailyUpdate(new String[]{(String) tvAttendance.getText(),
+						(String) tvLeave.getText(),
+						(String) tvBreak.getText(),date});
+
+				Toast.makeText(getApplicationContext(), "謹怠時間を登録しました。", Toast.LENGTH_LONG).show();
 			}
 		});
+		
+		// 「削除」ボタン
 		Button bDelete = (Button) findViewById(R.id.button_delete);
 		bDelete.setOnClickListener(new OnClickListener() {
 			@Override
@@ -190,7 +201,6 @@ public class DailyActivity extends Activity {
 			public TPDialogListener(int layout_id) {
 				super();
 				this.layout_id = layout_id;
-				
 			}
 			
 			@Override
