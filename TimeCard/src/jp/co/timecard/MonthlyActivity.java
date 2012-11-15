@@ -40,11 +40,15 @@ import android.widget.TextView;
 		//表示する年月（最初は現在の年月）
 		cal = Calendar.getInstance();
 
+		// 初期表示月のセット
 		setTargetMonth(0);
 
+		// 表示月のカレンダーを作成
 		createCalender();
 
+		// 前月ボタン
 		findViewById(R.id.button_pre_month).setOnClickListener(this);
+		// 次月ボタン
 		findViewById(R.id.button_next_month).setOnClickListener(this);
 
 	}
@@ -69,31 +73,29 @@ import android.widget.TextView;
 	public boolean onCreateOptionsMenu(Menu menu){
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.menu, menu);
-
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu){
-
 		super.onPrepareOptionsMenu(menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item){
-		 switch(item.getItemId()){
-		 //case R.id.settings:
-		 //	 Intent i = new Intent(MonthlyActivity.this, SettingActivity.class);
-		 //	 startActivity(i);
-		 //	 break;
+		// メニュー
+		switch(item.getItemId()){
+		// トップ画面へ戻る
+		case R.id.return_top:
+			Intent i2 = new Intent();
+			 i2.setClassName(
+	                    "jp.co.timecard",
+	                    "jp.co.timecard.TopActivity");
+            startActivity(i2);
+            return true;
 
-		 case R.id.return_top:
-			 Intent i2 = new Intent(this, TopActivity.class);
-			 startActivity(i2);
-			 finish();
-			 break;
-
+		// 終了する
 		 case R.id.finish:
 			 AlertDialog.Builder dlg = new AlertDialog.Builder(this);
 			 dlg.setMessage("アプリを終了してよろしいですか？");
@@ -146,7 +148,7 @@ import android.widget.TextView;
 		for(int i = 1; i <= dom; i++) {
 			//DBから勤怠を取得してくる（なければ空欄）
 			DailyState ds = new DailyState();
-			String crrent_mMonth = String.format("%1$02d",mMonth+1); 
+			String crrent_mMonth = String.format("%1$02d",mMonth+1);
 			String disp_date = mYear + "/" + crrent_mMonth + "/" + String.format("%1$02d", i);
 			ds.setDate(disp_date);
 
