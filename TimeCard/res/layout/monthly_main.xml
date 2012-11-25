@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical">
     <TableRow
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF">
         <Button
             android:text="前月"
             android:id="@+id/button_pre_month"
@@ -14,6 +15,7 @@
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/mon_target"
+            android:textColor="#000000"
             android:textSize="20dip"
             android:textStyle="bold"
             android:layout_width="0dip"
@@ -29,27 +31,37 @@
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+           	android:background="#888888"
+            android:paddingBottom="1dip">
             <TextView
                 android:text="日付"
+                android:textColor="#000000"
+            	android:background="#FFFFFF"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"/>
             <TextView
                 android:text="始業"
+                android:textColor="#000000"
+        	    android:background="#FFFFFF"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"/>
             <TextView
                 android:text="終業"
+                android:textColor="#000000"
+    	        android:background="#FFFFFF"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"/>
             <TextView
                 android:text="合計"
+                android:textColor="#000000"
+	            android:background="#FFFFFF"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
