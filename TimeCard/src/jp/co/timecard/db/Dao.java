@@ -72,7 +72,6 @@ public class Dao {
 	 * */
 	public void DailyUpdate(String[] update_param){
 		SQLiteDatabase db = helper.getWritableDatabase();
-		//ContentValues cv = new ContentValues();
 		
 		try {
 			String[] put_key = new String[]{"attendance_time",
@@ -101,62 +100,31 @@ public class Dao {
 					db.update(put_table[i], cv, put_pos[i]+"=?",
 							(i != 2) ? new String[]{update_param[3]} : new String[]{kintai_id});
 				}
-				
 			}
-			
 		} finally {
 			db.close();
 		}
-		
-		
-		
-		
 	}
 	
-	
-	
-	// TODO sdfパース処理はutilなものとして、切り出しといた方がよさそう
 	/*
-	 * 勤怠年月日を元に、勤怠クラスを返却する。
-	 */
-	private Kintai load(Date date) {
-		SQLiteDatabase db = helper.getReadableDatabase();
-		Kintai kintai = null;
-
+	 * 日次画面表示用のデフォルトの設定時刻取得メソッド
+	 * */
+	public String[] DailyDefaultTime(){
+		SQLiteDatabase db = helper.getWritableDatabase();
+		String iniparam[] = new String[3];
 		try {
-			Cursor cursor = db.query(DbConstants.TABLE_NAME1, null,
-					DbConstants.COLUMN_KINTAI_DATE + "=?",
-					new String[] { String.valueOf(date) }, null, null, null);
-			if (cursor.moveToFirst()) {
-				kintai = new Kintai();
-				SimpleDateFormat sdf = new SimpleDateFormat();
-				String stringId = cursor.getString(1);
-				try {
-					kintai.setKintaiDate(sdf.parse(stringId));
-				} catch (ParseException e) {
-					// TODO 自動生成された catch ブロック
-					e.printStackTrace();
-				}
-			} else {
-				// TODO ちゃんと例外処理
-				Log.d("debug", "cursor.moveToFirst()に失敗");
+			Cursor c = db.rawQuery("SELECT mi.start_time, mi.end_time, mi.break_time " +
+					"FROM " + "mst_initime mi", null);
+			if (c.moveToFirst()){
+				iniparam[0] = c.getString(0); 	// 始業時刻
+				iniparam[1] = c.getString(1);	// 終業時刻
+				iniparam[2] = c.getString(2);	// 休憩時刻
 			}
 		} finally {
 			db.close();
 		}
-		return kintai;
-	}
-	// TODO マッピングクラス全部を引数としてとれたら良い
-	public void save(Attendance attendance) {
-		SQLiteDatabase db = helper.getWritableDatabase();
-		ContentValues cv = new ContentValues();
-		try {
-			// cv.put(key, value)
-			// TODO insert or update
-			db.insert(DbConstants.TABLE_NAME2, null, cv);
-
-		} finally {
-			db.close();
-		}
+		//Log.d("debug", iniparam[2]);
+		
+		return iniparam;
 	}
 }

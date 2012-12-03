@@ -39,11 +39,28 @@ public class DailyActivity extends Activity {
 		Intent i = getIntent();
 		DailyState ds = (DailyState) i.getSerializableExtra("DailyState");
 
-		//TODO 画面遷移直後の表示(月次画面リストで値がない場合は、mst_initimeの値をセットとする)
+		//画面遷移直後の表示(月次画面リストで値がない場合は、mst_initimeの値をセットとする)
 		final String date = ds.getDate();
-		String attendance = ds.getAttendance().length()!= 0 ? ds.getAttendance() : "09:00";
-		String leave = ds.getLeave().length()!= 0 ? ds.getLeave() : "18:00";
-		String break_time= ds.getBreakTime().length()!= 0 ? ds.getBreakTime() : "01:00";
+		Dao dao = new Dao(getApplicationContext());
+		String[] default_param = dao.DailyDefaultTime(); // mst_initimeの値
+		//Log.d("debug", );
+		
+		String attendance = null;
+		String leave = null;
+		String break_time = null;
+		// 値がセットされていればセット、そうでなければ、DBの値セット
+		if (ds.getAttendance() != null && ds.getAttendance().length()!= 0){
+			attendance = ds.getAttendance();
+		} else{attendance = default_param[0];}
+		
+		if (ds.getLeave() != null && ds.getLeave().length()!= 0){
+			leave = ds.getLeave();
+		} else{leave = default_param[1];}
+		
+		if (ds.getBreakTime() != null && ds.getBreakTime().length()!= 0){
+			break_time = ds.getBreakTime();
+		} else{break_time = default_param[2];}
+
 		
 		String str= new String(date);
 		String[] strArray = str.split("/");
