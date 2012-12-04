@@ -2,6 +2,7 @@ package jp.co.timecard.db;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import jp.co.timecard.db.mapping.Attendance;
@@ -18,6 +19,7 @@ public class Dao {
 	
 	public Dao(Context context) {
 		helper = new DbOpenHelper(context);
+		
 	}
 
 	/*
@@ -67,11 +69,13 @@ public class Dao {
 
 	/*
 	 * 日次画面の時刻でDB更新
-	 * @param update_param[0] 出勤時刻
+	 * @param update_param Update時刻
 	 * 
 	 * */
 	public void DailyUpdate(String[] update_param){
 		SQLiteDatabase db = helper.getWritableDatabase();
+		SimpleDateFormat timestamp_sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		String currenttime = timestamp_sdf.format(Calendar.getInstance().getTime());
 		
 		try {
 			String[] put_key = new String[]{"attendance_time",
@@ -81,24 +85,74 @@ public class Dao {
 			String[] put_pos = new String[]{"attendance_date",
 					"leaveoffice_date","kintai_id"};
 			
-			// 画面表示されている日付よりkintai_idを取得してくる
+			// 画面表示されている日付より勤怠マスタよりkintai_idを取得してくる
 			Cursor c = db.rawQuery("SELECT mk.kintai_id FROM " +
 					"mst_kintai mk" + " WHERE mk.kintai_date=?", 
 					new String[]{update_param[3]});
 			
+			// 表示されている日次画面の日付の出勤・退勤マスタのデータがあるかどうか確認
+			// なければInsert、あればUpdateを行う。
+			Cursor c2 = db.rawQuery("SELECT ma.kintai_id FROM " +
+					"mst_attendance ma" + " WHERE ma.attendance_date=?", 
+					new String[]{update_param[3]});
+			Cursor c3 = db.rawQuery("SELECT ml.kintai_id FROM " +
+					"mst_leaveoffice ml" + " WHERE ml.leaveoffice_date=?", 
+					new String[]{update_param[3]});
+
 			if (c.moveToFirst()){
+				// 勤怠IDがあれば、休憩マスタのデータが取得できる
 				String kintai_id = c.getString(0);
-				//Log.d("debug",String.valueOf(put_key.length));
 				
-				// 休憩時間(i=2)だけはkintai_idをキーに更新しないといけない
-				// TODO 出勤時刻のみ記録しかないと、正常にUpdateされない
-				for (int i = 0; i < put_key.length; i++){
-					//Log.d("debug",update_param[3]);
+				// 出勤・退勤・休憩記録の有無によってInsert、updateを分岐
+				// TODO 退勤・休憩記録処理はまだ未実装
+				if (c2.getCount() == 0) {
+					// 出勤記録がなければInsert
 					ContentValues cv = new ContentValues();
-					// 更新データ生成
-					cv.put(put_key[i], update_param[i]);
-					db.update(put_table[i], cv, put_pos[i]+"=?",
-							(i != 2) ? new String[]{update_param[3]} : new String[]{kintai_id});
+					cv.put("kintai_id", kintai_id);
+					cv.put("attendance_date", update_param[3]);
+					cv.put("attendance_time", update_param[0]);
+					cv.put("regist_datetime", currenttime);
+					cv.put("update_datetime", currenttime);
+					db.insert(DbConstants.TABLE_NAME2, null, cv);
+				} else {
+					// 出勤記録あればUpdate
+					ContentValues cv = new ContentValues();
+					cv.put(put_key[0], update_param[0]);
+					db.update(put_table[0], cv, put_pos[0]+"=?",
+							new String[]{update_param[3]});
+				}
+//					db.update(put_table[i], cv, put_pos[i]+"=?",
+//							(i != 2) ? new String[]{update_param[3]} : new String[]{kintai_id});
+
+			} else {
+				// 勤怠IDがない場合(当日日付でないや、未来日付等)全てをInsert
+				// 勤怠マスタへの登録(勤怠id発行)
+				ContentValues cv = new ContentValues();
+				cv.put("kintai_date", update_param[3]);
+				db.insert(DbConstants.TABLE_NAME1, null, cv);
+				
+				Cursor c4 = db.rawQuery("SELECT mk.kintai_id FROM " +
+						"mst_kintai mk" + " WHERE mk.kintai_date=?", 
+						new String[]{update_param[3]});
+				
+				if (c4.moveToFirst()){
+					// 登録されていれば、その勤怠idを元に出勤・退勤・休憩マスタ登録
+					for (int i = 0; i < put_key.length; i++){
+						//Log.d("debug",update_param[3]);
+						ContentValues cv2 = new ContentValues();
+						// Insertデータ生成
+						cv2.put("kintai_id", c4.getString(0));
+						cv2.put(put_key[i], update_param[i]); // 時刻セット
+						
+						if (i != 2) {
+							// 休憩マスタの以外の時だけ
+							cv2.put(put_pos[i], update_param[3]);
+						}
+						cv2.put("regist_datetime", currenttime);
+						cv2.put("update_datetime", currenttime);
+						db.insert(put_table[i], null, cv2);
+					}
+					
 				}
 			}
 		} finally {
