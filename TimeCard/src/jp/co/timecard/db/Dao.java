@@ -207,8 +207,33 @@ public class Dao {
 		} finally {
 			db.close();
 		}
-		//Log.d("debug", iniparam[2]);
-		
 		return iniparam;
+	}
+	
+	/*
+	 * 日次画面の休憩時間timePickerDialog用の取得メソッド
+	 * */
+	public String BreakTimeGet(String date){
+		SQLiteDatabase db = helper.getWritableDatabase();
+		String break_time = null;
+		
+		try {
+			// 勤怠idを取得
+			Cursor c = db.rawQuery("SELECT mb.break_time FROM mst_break mb " +
+					"WHERE mb.kintai_id=(SELECT mk.kintai_id FROM mst_kintai mk " +
+					"WHERE mk.kintai_date=?)", 
+					new String[]{date});
+			if (c.moveToFirst() && c.getCount() != 0){
+				// 休憩記録があれば
+				break_time = c.getString(0);
+			} else {
+				// 休憩記録がなければ時刻設定マスタの休憩時間を取得
+				String[] default_param = DailyDefaultTime();
+				break_time = default_param[2];
+			}
+		} finally {
+			db.close();
+		}
+		return break_time;
 	}
 }

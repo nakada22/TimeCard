@@ -132,12 +132,13 @@ public class DailyActivity extends Activity {
 		bDelete.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO 自動生成されたメソッド・スタブ
+				// TODO 削除処理
 				Toast.makeText(getApplicationContext(), "DBから削除しました", Toast.LENGTH_LONG).show();
 			}
 		});
 	}
 
+	
 	/**
 	 * 表示対象日のデータをを取得。
 	 * @param value 前か次ボタンの値
@@ -166,7 +167,11 @@ public class DailyActivity extends Activity {
 		int hourOfDay;
 		int minute;
 		boolean is24HourView = true;
-
+		Dao dao = new Dao(getApplicationContext());
+		Intent i = getIntent();
+		DailyState ds = (DailyState) i.getSerializableExtra("DailyState");
+		final String date = ds.getDate();
+		
 		public MyListener(int layout_id) {
 			super();
 			switch (layout_id) {
@@ -182,9 +187,11 @@ public class DailyActivity extends Activity {
 		    	is24HourView = true;
 				break;
 			case R.id.daily_break:
-				this.layout_id = layout_id;
-				// TODO 休憩時間は画面表示されていないのでDBから取ってくる
-				this.hourOfDay = 1; // 休憩時間(仮で1時間をセット)
+				// 休憩時間は画面表示されていないのでDBから取ってくる必要がある
+				String break_time = dao.BreakTimeGet(date);
+		    	hourOfDay = Integer.parseInt(break_time.substring(0, 2));
+		    	minute = Integer.parseInt(break_time.substring(3, 5));
+		    	is24HourView = true;
 				break;
 			}
 		}
