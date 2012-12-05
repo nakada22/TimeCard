@@ -1,12 +1,8 @@
 package jp.co.timecard.db;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
-import jp.co.timecard.db.mapping.Attendance;
-import jp.co.timecard.db.mapping.Kintai;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -76,54 +72,89 @@ public class Dao {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		SimpleDateFormat timestamp_sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		String currenttime = timestamp_sdf.format(Calendar.getInstance().getTime());
+		String[] put_key = new String[]{"attendance_time",
+				"leaveoffice_time","break_time"};
+		String[] put_table = new String[]{"mst_attendance",
+				"mst_leaveoffice","mst_break"};
+		String[] put_pos = new String[]{"attendance_date",
+				"leaveoffice_date","kintai_id"};
 		
 		try {
-			String[] put_key = new String[]{"attendance_time",
-					"leaveoffice_time","break_time"};
-			String[] put_table = new String[]{"mst_attendance",
-					"mst_leaveoffice","mst_break"};
-			String[] put_pos = new String[]{"attendance_date",
-					"leaveoffice_date","kintai_id"};
-			
 			// 画面表示されている日付より勤怠マスタよりkintai_idを取得してくる
 			Cursor c = db.rawQuery("SELECT mk.kintai_id FROM " +
 					"mst_kintai mk" + " WHERE mk.kintai_date=?", 
 					new String[]{update_param[3]});
-			
-			// 表示されている日次画面の日付の出勤・退勤マスタのデータがあるかどうか確認
-			// なければInsert、あればUpdateを行う。
 			Cursor c2 = db.rawQuery("SELECT ma.kintai_id FROM " +
 					"mst_attendance ma" + " WHERE ma.attendance_date=?", 
 					new String[]{update_param[3]});
 			Cursor c3 = db.rawQuery("SELECT ml.kintai_id FROM " +
 					"mst_leaveoffice ml" + " WHERE ml.leaveoffice_date=?", 
 					new String[]{update_param[3]});
-
+			
+			// 表示されている日次画面の日付の出勤・退勤マスタのデータがあるかどうか確認
+			// なければInsert、あればUpdateを行う。
 			if (c.moveToFirst()){
-				// 勤怠IDがあれば、休憩マスタのデータが取得できる
+				// 勤怠IDがあれば、休憩マスタのデータの有無の確認ができる
 				String kintai_id = c.getString(0);
+				Cursor c4 = db.rawQuery("SELECT mb.break_time FROM " +
+						"mst_break mb" + " WHERE mb.kintai_id=?", 
+						new String[]{kintai_id});
+				
+				int atd_cnt = c2.getCount(); 	// 出勤記録の有無(0:無 1:有)
+				int lo_cnt = c3.getCount();  	// 退勤記録の有無(0:無 1:有)
+				int break_cnt = c4.getCount();  // 休憩記録の有無(0:無 1:有)
 				
 				// 出勤・退勤・休憩記録の有無によってInsert、updateを分岐
-				// TODO 退勤・休憩記録処理はまだ未実装
-				if (c2.getCount() == 0) {
+				// 出勤記録処理
+				ContentValues atd_cv = new ContentValues();
+				if (atd_cnt == 0) {
 					// 出勤記録がなければInsert
-					ContentValues cv = new ContentValues();
-					cv.put("kintai_id", kintai_id);
-					cv.put("attendance_date", update_param[3]);
-					cv.put("attendance_time", update_param[0]);
-					cv.put("regist_datetime", currenttime);
-					cv.put("update_datetime", currenttime);
-					db.insert(DbConstants.TABLE_NAME2, null, cv);
+					atd_cv.put("kintai_id", kintai_id);
+					atd_cv.put(put_pos[0], update_param[3]);
+					atd_cv.put(put_key[0], update_param[0]);
+					atd_cv.put("regist_datetime", currenttime);
+					atd_cv.put("update_datetime", currenttime);
+					db.insert(DbConstants.TABLE_NAME2, null, atd_cv);
 				} else {
 					// 出勤記録あればUpdate
-					ContentValues cv = new ContentValues();
-					cv.put(put_key[0], update_param[0]);
-					db.update(put_table[0], cv, put_pos[0]+"=?",
+					atd_cv.put(put_key[0], update_param[0]);
+					db.update(put_table[0], atd_cv, put_pos[0]+"=?",
 							new String[]{update_param[3]});
 				}
-//					db.update(put_table[i], cv, put_pos[i]+"=?",
-//							(i != 2) ? new String[]{update_param[3]} : new String[]{kintai_id});
-
+				//Log.d("debug", String.valueOf(lo_cnt));
+				
+				// 退勤記録処理
+				ContentValues lo_cv = new ContentValues();
+				if (lo_cnt == 0) {
+					// 退勤記録がなければInsert
+					lo_cv.put("kintai_id", kintai_id);
+					lo_cv.put(put_pos[1], update_param[3]);
+					lo_cv.put(put_key[1], update_param[1]);
+					lo_cv.put("regist_datetime", currenttime);
+					lo_cv.put("update_datetime", currenttime);
+					db.insert(DbConstants.TABLE_NAME3, null, lo_cv);
+				} else {
+					// 退勤記録あればUpdate
+					lo_cv.put(put_key[1], update_param[1]);
+					db.update(put_table[1], lo_cv, put_pos[1]+"=?",
+							new String[]{update_param[3]});
+				}
+				// 休憩記録処理
+				ContentValues break_cv = new ContentValues();
+				if (break_cnt == 0) {
+					// 休憩記録がなければInsert
+					break_cv.put("kintai_id", kintai_id);
+					break_cv.put(put_key[2], update_param[2]);
+					break_cv.put("regist_datetime", currenttime);
+					break_cv.put("update_datetime", currenttime);
+					db.insert(DbConstants.TABLE_NAME4, null, break_cv);
+				} else {
+					// 休憩記録あればUpdate
+					break_cv.put(put_key[2], update_param[2]);
+					db.update(put_table[2], break_cv, put_pos[2]+"=?",
+							new String[]{kintai_id});
+				}
+				
 			} else {
 				// 勤怠IDがない場合(当日日付でないや、未来日付等)全てをInsert
 				// 勤怠マスタへの登録(勤怠id発行)
@@ -152,7 +183,6 @@ public class Dao {
 						cv2.put("update_datetime", currenttime);
 						db.insert(put_table[i], null, cv2);
 					}
-					
 				}
 			}
 		} finally {
