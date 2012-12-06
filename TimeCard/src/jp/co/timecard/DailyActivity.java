@@ -123,7 +123,7 @@ public class DailyActivity extends Activity {
 						(String) tvLeave.getText(),
 						(String) tvBreak.getText(),date});
 
-				Toast.makeText(getApplicationContext(), "謹怠時間を登録しました。", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "謹怠記録を登録しました。", Toast.LENGTH_SHORT).show();
 			}
 		});
 		
@@ -136,8 +136,9 @@ public class DailyActivity extends Activity {
 		bDelete.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO 削除処理
-				Toast.makeText(getApplicationContext(), "DBから削除しました", Toast.LENGTH_SHORT).show();
+				// 削除処理
+				dao.DailyDelete(date);
+				Toast.makeText(getApplicationContext(), "勤怠記録を削除しました", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -191,6 +192,7 @@ public class DailyActivity extends Activity {
 		    	is24HourView = true;
 				break;
 			case R.id.daily_break:
+				this.layout_id = layout_id;
 				// 休憩時間は画面表示されていないのでDBから取ってくる必要がある
 				String break_time = dao.BreakTimeGet(date);
 		    	hourOfDay = Integer.parseInt(break_time.substring(0, 2));

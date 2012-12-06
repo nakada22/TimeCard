@@ -176,7 +176,7 @@ public class Dao {
 						cv2.put(put_key[i], update_param[i]); // 時刻セット
 						
 						if (i != 2) {
-							// 休憩マスタの以外の時だけ
+							// 休憩マスタ以外の時だけ
 							cv2.put(put_pos[i], update_param[3]);
 						}
 						cv2.put("regist_datetime", currenttime);
@@ -236,4 +236,28 @@ public class Dao {
 		}
 		return break_time;
 	}
+	
+	/*
+	 * 日次画面におけるデータ削除メソッド
+	 */
+	public void DailyDelete(String date) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		try {
+			// 勤怠Id取得
+			Cursor c = db.rawQuery("SELECT mk.kintai_id FROM " +
+					"mst_kintai mk" + " WHERE mk.kintai_date=?", 
+					new String[]{date});
+			if (c.moveToFirst()) {
+				String kintai_id = c.getString(0);
+				// 当該日付に紐づく出勤・退勤・休憩マスタのデータを削除
+				// 勤怠マスタのデータは削除後の再登録のケースを考慮し、削除は行わない
+				db.delete(DbConstants.TABLE_NAME2, "kintai_id = " + kintai_id, null);
+				db.delete(DbConstants.TABLE_NAME3, "kintai_id = " + kintai_id, null);
+				db.delete(DbConstants.TABLE_NAME4, "kintai_id = " + kintai_id, null);
+			}
+		} finally {
+			db.close();
+		}
+	}
+	
 }
