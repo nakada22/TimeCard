@@ -1,6 +1,7 @@
 package jp.co.timecard;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import jp.co.timecard.db.Dao;
@@ -41,7 +42,7 @@ public class DailyActivity extends Activity {
 
 		//画面遷移直後の表示(月次画面リストで値がない場合は、mst_initimeの値をセットとする)
 		final String date = ds.getDate();
-		Dao dao = new Dao(getApplicationContext());
+		final Dao dao = new Dao(getApplicationContext());
 		String[] default_param = dao.DailyDefaultTime(); // mst_initimeの値
 		//Log.d("debug", );
 		
@@ -118,22 +119,25 @@ public class DailyActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// 出勤マスタ・退勤マスタ・休憩マスタへDB更新（画面で設定した時刻）
-				Dao dao = new Dao(getApplicationContext());
 				dao.DailyUpdate(new String[]{(String) tvAttendance.getText(),
 						(String) tvLeave.getText(),
 						(String) tvBreak.getText(),date});
 
-				Toast.makeText(getApplicationContext(), "謹怠時間を登録しました。", Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), "謹怠時間を登録しました。", Toast.LENGTH_SHORT).show();
 			}
 		});
 		
 		// 「削除」ボタン
 		Button bDelete = (Button) findViewById(R.id.button_delete);
+		// 勤怠記録がない場合は、「削除」ボタンは非表示にする
+		if(Arrays.binarySearch(dao.MonthlyList(date), "") == 1) {
+			bDelete.setVisibility(View.INVISIBLE);
+		}
 		bDelete.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// TODO 削除処理
-				Toast.makeText(getApplicationContext(), "DBから削除しました", Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), "DBから削除しました", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
