@@ -195,7 +195,7 @@ public class TopDao {
 	/*
 	 * 退勤マスタ(mst_leaveoffice)のデータ登録
 	 * */
-	public void LeaveofficeSave(String kintai_date, String kintai_date_time, TextView leave_time) {
+	public boolean LeaveofficeSave(String kintai_date, String kintai_date_time, TextView leave_time) {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		ContentValues cv = new ContentValues();
 		//db.execSQL("DELETE FROM mst_leaveoffice;");
@@ -220,17 +220,25 @@ public class TopDao {
 			Cursor c2 = db.rawQuery("SELECT * FROM " +
 					"mst_leaveoffice WHERE " + DbConstants.COLUMN_KINTAI_ID + "=" + kintai_id, null);
 
+			Cursor c3 = db.rawQuery("SELECT * FROM " +
+					"mst_attendance WHERE " + DbConstants.COLUMN_KINTAI_ID + "=" + kintai_id, null);
+			
 			if (c2.getCount() == 0) {
-				// データがなければ新規登録
-				try {
-					cv.put(DbConstants.COLUMN_KINTAI_ID, kintai_id);
-					cv.put(DbConstants.COLUMN_LEAVEOFFICE_DATE, kintai_date);
-					cv.put(DbConstants.COLUMN_LEAVEOFFICE_TIME, ins_leave_time);
-					cv.put(DbConstants.COLUMN_REGIST_DATETIME, kintai_date_time);
-					cv.put(DbConstants.COLUMN_UPDATE_DATETIME, kintai_date_time);
-					db.insert(DbConstants.TABLE_NAME3, null, cv);
-				} finally {
-					db.close();
+				// 退勤記録がなくても、出勤記録もなければ新規登録は行わない
+				if (c3.getCount() == 0) {
+					// Toast表示
+					return false;
+				} else {
+					try {
+						cv.put(DbConstants.COLUMN_KINTAI_ID, kintai_id);
+						cv.put(DbConstants.COLUMN_LEAVEOFFICE_DATE, kintai_date);
+						cv.put(DbConstants.COLUMN_LEAVEOFFICE_TIME, ins_leave_time);
+						cv.put(DbConstants.COLUMN_REGIST_DATETIME, kintai_date_time);
+						cv.put(DbConstants.COLUMN_UPDATE_DATETIME, kintai_date_time);
+						db.insert(DbConstants.TABLE_NAME3, null, cv);
+					} finally {
+						db.close();
+					}
 				}
 			} else {
 				// 既に退勤時刻登録済の場合は、新たな時刻で更新
@@ -242,7 +250,11 @@ public class TopDao {
 					db.close();
 				}
 			}
+		} else {
+			// 勤怠Idがない場合(出勤記録がない場合)
+			return false;
 		}
+		return true;
 	}
 	
 	/*

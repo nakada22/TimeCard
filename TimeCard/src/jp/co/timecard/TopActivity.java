@@ -189,7 +189,6 @@ public class TopActivity extends Activity implements View.OnClickListener
 		final ImageButton imgbutton = new ImageButton(this);
 	    imgbutton.setImageResource(R.drawable.atendance);
 	    
-		//final Button attendbtn = (Button) findViewById(R.id.attendance);
 		final TextView start_tv = (TextView) findViewById(R.id.start_time2);
 		
 		// 出勤マスタへDB登録（画面で設定した時刻）
@@ -202,10 +201,8 @@ public class TopActivity extends Activity implements View.OnClickListener
 		
 		if (checkBox.isChecked() == true) {
 			//現在時刻使用チェック時、現在時刻で退勤時刻を記録
-			td.AttendanceSave(sdf.format(date), currenttime, null);
 			atd_flg = td.AttendanceSave(sdf.format(date), currenttime, null);
 		} else {
-			td.AttendanceSave(sdf.format(date), currenttime, atd_tv);
 			atd_flg = td.AttendanceSave(sdf.format(date), currenttime, atd_tv);
         }
 		
@@ -215,7 +212,6 @@ public class TopActivity extends Activity implements View.OnClickListener
 		    "既に退勤済みです",
 		    Toast.LENGTH_SHORT).show();
 		} else {
-			//if (attendbtn.isEnabled() == true) {
 			if (imgbutton.isEnabled() == true) {
 				Toast.makeText(TopActivity.this,
 			    "出勤",
@@ -232,31 +228,40 @@ public class TopActivity extends Activity implements View.OnClickListener
 		final ImageButton leaveimgbutton = new ImageButton(this);
 		leaveimgbutton.setImageResource(R.drawable.leave);
 	    
-        //final Button leaveofficebtn = (Button) findViewById(R.id.leaveoffice);
         final TextView start_tv = (TextView) findViewById(R.id.start_time2); // 始業時刻
     	final TextView end_tv = (TextView) findViewById(R.id.last_time2); 	// 終業時刻
     	final TextView break_tv = (TextView) findViewById(R.id.bleak_time2); // 休憩時間
     	final TextView sumtime_tv = (TextView) findViewById(R.id.sum_time2); // 合計時間
-
-        if (leaveimgbutton.isEnabled() == true) {
-        	Toast.makeText(TopActivity.this,
-            "退勤",
-            Toast.LENGTH_SHORT).show();
-        }
         
         // 退勤マスタ・休憩マスタへDB登録（画面で設定した時刻）
 		TextView leave_tv = (TextView) findViewById(R.id.currenttime);
 		TopDao td = new TopDao(getApplicationContext());
 		
+		// まだ未出勤の場合は、退勤記録をしないようにする
 		String currenttime = timestamp_sdf.format(Calendar.getInstance().getTime());
 		final CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox1);
+		boolean leave_flg;
 		
 		if (checkBox.isChecked() == true) {
 			//現在時刻使用チェック時、現在時刻で退勤時刻を記録
-			td.LeaveofficeSave(sdf.format(date), currenttime, null);
+			leave_flg = td.LeaveofficeSave(sdf.format(date), currenttime, null);
 		} else {
-			td.LeaveofficeSave(sdf.format(date), currenttime, leave_tv);
+			leave_flg = td.LeaveofficeSave(sdf.format(date), currenttime, leave_tv);
         }
+		
+		// まだ未出勤の場合
+		if (leave_flg == false) {
+			Toast.makeText(TopActivity.this,
+		    "先に出勤記録を行って下さい。",
+		    Toast.LENGTH_SHORT).show();
+		} else {
+			if (leaveimgbutton.isEnabled() == true) {
+				Toast.makeText(TopActivity.this,
+			    "退勤",
+			    Toast.LENGTH_SHORT).show();
+			}
+		}
+		
 		td.preBreakSave(sdf.format(date), currenttime);
         td.TopTimeDisp(sdf.format(date),start_tv, end_tv, break_tv, sumtime_tv);
 	}
