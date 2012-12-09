@@ -189,7 +189,6 @@ public class DailyActivity extends Activity {
 				String disptime = String.valueOf(tv.getText());
 		    	hourOfDay = Integer.parseInt(disptime.substring(0, 2));
 		    	minute = Integer.parseInt(disptime.substring(3, 5));
-		    	is24HourView = true;
 				break;
 			case R.id.daily_break:
 				this.layout_id = layout_id;
@@ -197,7 +196,6 @@ public class DailyActivity extends Activity {
 				String break_time = dao.BreakTimeGet(date);
 		    	hourOfDay = Integer.parseInt(break_time.substring(0, 2));
 		    	minute = Integer.parseInt(break_time.substring(3, 5));
-		    	is24HourView = true;
 				break;
 			}
 		}
@@ -205,11 +203,27 @@ public class DailyActivity extends Activity {
 		// 各ボタンのリスナー
 		public void onClick(View v) {
 			TimePickerDialog timePickerDialog;
+			final TextView tv = (TextView) findViewById(layout_id);
+			String disptime = String.valueOf(tv.getText());
 			
-			timePickerDialog = new TimePickerDialog(DailyActivity.this, 
-					new TPDialogListener(layout_id), 
-					hourOfDay, minute, is24HourView);
+	    	hourOfDay = Integer.parseInt(disptime.substring(0, 2));
+	    	minute = Integer.parseInt(disptime.substring(3, 5));
+	    	is24HourView = true;
 
+			TimePickerDialog.OnTimeSetListener TimeSetListener = new TimePickerDialog.OnTimeSetListener() {
+				public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+					// 設定した時刻をTPDialogの時刻に反映
+					TextView tv = (TextView) findViewById(layout_id);
+					DecimalFormat df = new DecimalFormat("00");
+					StringBuilder sb = new StringBuilder()
+					.append(df.format(hourOfDay))
+					.append(":")
+					.append(df.format(minute));
+					tv.setText(sb);
+				}
+			};
+			
+			timePickerDialog = new TimePickerDialog(DailyActivity.this, TimeSetListener, hourOfDay, minute, is24HourView);
 			// timePickerDialog時のメッセージ設定
 			switch (layout_id) {
 				case R.id.daily_attendance:
@@ -223,28 +237,6 @@ public class DailyActivity extends Activity {
 					break;
 			}
 			timePickerDialog.show();
-		}
-		
-		private class TPDialogListener implements TimePickerDialog.OnTimeSetListener {
-			int layout_id;
-
-			public TPDialogListener(int layout_id) {
-				super();
-				this.layout_id = layout_id;
-			}
-			
-			@Override
-			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-				
-				// TODO 設定した時刻をTPDialogの時刻に反映させたい。
-				TextView tv = (TextView) findViewById(layout_id);
-				DecimalFormat df = new DecimalFormat("00");
-				StringBuilder sb = new StringBuilder()
-				.append(df.format(hourOfDay))
-				.append(":")
-				.append(df.format(minute));
-				tv.setText(sb);
-			}
 		}
 	}
 }
