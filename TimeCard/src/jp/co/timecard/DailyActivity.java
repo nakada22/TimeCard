@@ -1,6 +1,7 @@
 package jp.co.timecard;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -22,9 +23,11 @@ public class DailyActivity extends Activity {
 	private int mYear;
 	private int mMonth;
 	private int mDay;
-
+	private int week;
+	
 	static private Calendar calendar;
-
+	DecimalFormat df = new DecimalFormat("00");
+	
 	final int PRE_DAY = -1;
 	final int NEX_DAY = 1;
 
@@ -62,21 +65,25 @@ public class DailyActivity extends Activity {
 			break_time = ds.getBreakTime();
 		} else{break_time = default_param[2];}
 
-		
 		String str= new String(date);
 		String[] strArray = str.split("/");
-
+		
 		calendar = Calendar.getInstance();
-		calendar.set(Integer.valueOf(strArray[0]),
-				Integer.valueOf(strArray[1]), Integer.valueOf(strArray[2]));
-
+		calendar.set(Integer.parseInt(strArray[0]), 
+				Integer.parseInt(df.format(Integer.parseInt(strArray[1])-1)), 
+				Integer.parseInt(df.format(Integer.parseInt(strArray[2]))));
+		
+		week = calendar.get(Calendar.DAY_OF_WEEK)-1;//1(日曜)～7(土曜)
+        String[] week_name = {"日", "月", "火", "水", "木", "金", "土"};
+        
 		// 表示するVIEW
 		tvDate = (TextView) findViewById(R.id.day_target);
 		tvAttendance = (TextView) findViewById(R.id.daily_attendance);
 		tvLeave = (TextView) findViewById(R.id.daily_leave);
 		tvBreak = (TextView) findViewById(R.id.daily_break);
 		
-		tvDate.setText(strArray[1]+"月" + strArray[2]+"日");
+		tvDate.setText(strArray[0]+"/" +strArray[1]+"/" + strArray[2]
+				+ "("+week_name[week]+")");
 		tvAttendance.setText(attendance);
 		tvLeave.setText(leave);
 		tvBreak.setText(break_time);
@@ -149,19 +156,32 @@ public class DailyActivity extends Activity {
 	 * @param value 前か次ボタンの値
 	 */
 	public void setTargetDay(int value) {
+		// 日次画面の日付をセット
+		String Mtarget = tvDate.getText().toString();
+		String[] strArray = Mtarget.split("/");
+		DecimalFormat df = new DecimalFormat("00");
+		
+		calendar.set(Integer.parseInt(strArray[0]), 
+				Integer.parseInt(df.format(Integer.parseInt(strArray[1])-1)), 
+				Integer.parseInt(df.format(Integer.parseInt(strArray[2].substring(0,2)))));
+		
+		// 日付の加算・減算
 		calendar.add(Calendar.DAY_OF_MONTH, value);
 		mYear = calendar.get(Calendar.YEAR);
-		mMonth = calendar.get(Calendar.MONTH);
+		mMonth = calendar.get(Calendar.MONTH)+1;
 		mDay = calendar.get(Calendar.DAY_OF_MONTH);
-		calendar.set(mYear, mMonth, mDay);
-
+		int week = calendar.get(Calendar.DAY_OF_WEEK)-1;//1(日曜)～7(土曜)
+        String[] week_name = {"日", "月", "火", "水", "木", "金", "土"};
+        
 		// TODO DBから対象日の勤怠情報取得
 		Dao dao = new Dao(this);
-		String attendance = "9:00";
+		String attendance = "09:00";
 		String leave = "18:00";
 		String break_time= "01:00";
 
-		tvDate.setText(mMonth + "月" + mDay + "日");
+		tvDate.setText(mYear+"/" +df.format(mMonth)+"/" + 
+		df.format(mDay)+ "("+week_name[week]+")");
+		
 		tvAttendance.setText(attendance);
 		tvLeave.setText(leave);
 		tvBreak.setText(break_time);
