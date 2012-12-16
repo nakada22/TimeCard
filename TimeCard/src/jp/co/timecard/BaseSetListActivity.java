@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import jp.co.timecard.db.Dao;
 import jp.co.timecard.db.DbConstants;
 import jp.co.timecard.db.DbOpenHelper;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +26,7 @@ public class BaseSetListActivity extends Activity {
 	ArrayList<HashMap<String, String>> mList;
 	BaseSetListAdapter adapter;
 	ListView listview;
+	View getView;
 	int mYear;
 	int mMonth;
 	int hourOfDay;
@@ -41,7 +42,7 @@ public class BaseSetListActivity extends Activity {
 
 		listview = (ListView) findViewById(R.id.listview);
 		mList = new ArrayList<HashMap<String, String>>();
-
+		
 		// リスト表示
 		ListViewDisp();
 
@@ -53,9 +54,11 @@ public class BaseSetListActivity extends Activity {
 	private void ListViewDisp() {
 
 		// 時刻設定マスタよりデータ取得
-		String[] ini_time = IniTimeGet();
+		Dao dao = new Dao(this);
+		String[] ini_time = dao.DailyDefaultTime();
 		HashMap<String, String> item;
-
+		
+		// 初期表示
 		item = new HashMap<String, String>();
 		item.put("title", "始業時刻設定");
 		item.put("desc", "現在の設定 " + ini_time[0]);
@@ -66,12 +69,11 @@ public class BaseSetListActivity extends Activity {
 		item.put("desc", "現在の設定 " + ini_time[1]);
 		mList.add(item);
 		
-		
 		item = new HashMap<String, String>();
 		item.put("title", "休憩時間設定");
 		item.put("desc", "現在の設定 " + ini_time[2]);
 		mList.add(item);
-
+		
 		adapter = new BaseSetListAdapter(this, mList);
 		listview.setAdapter(adapter);
 		listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -80,51 +82,30 @@ public class BaseSetListActivity extends Activity {
 					int position, long id) {
 					String currenttime = timestamp_sdf.format(Calendar
 						.getInstance().getTime());
-				//HashMap<String, String> item = null;
-
 
 				// タイトル、設定
 				String title = mList.get(position).get("title");
 				//String desc = mList.get(position).get("desc");
+				//Log.d("debug", desc);
 				//Log.d("debug", String.valueOf(item.entrySet()));
-				ListViewClick(title, title, currenttime);
+				ListViewClick(title, title, currenttime, position);
 			}
 		});
-	}
-
-	/*
-	 * 時刻設定マスタ(mst_initime)のデータ返却
-	 */
-	private String[] IniTimeGet() {
-		String ini_time[] = new String[3];
-		DbOpenHelper helper = new DbOpenHelper(getApplicationContext());
-
-		SQLiteDatabase db = helper.getWritableDatabase();
-		Cursor c;
-		c = db.query(true, DbConstants.TABLE_NAME5, null, null, null, null,
-				null, null, null);
-
-		if (c.moveToFirst()) {
-			ini_time[0] = c.getString(0); // start_time
-			ini_time[1] = c.getString(1); // end_time
-			ini_time[2] = c.getString(2); // break_time
-			db.close();
-		}
-		return ini_time;
 	}
 
 	/*
 	 * 時刻設定リストクリック
 	 */
 	private void ListViewClick(String settitle, final String title,
-			final String update_date_time) {
+			final String update_date_time, final int position) {
 		TimePickerDialog timePickerDialog;
 		final ContentValues cv = new ContentValues();
 		final DbOpenHelper helper = new DbOpenHelper(getApplicationContext());
 		final SQLiteDatabase db = helper.getWritableDatabase();
 
 		// 時刻設定マスタよりデータ取得
-		final String[] ini_time = IniTimeGet();
+		Dao dao = new Dao(this);
+		final String[] ini_time = dao.DailyDefaultTime();
 
 		// 始業時刻設定がクリックされた場合
 		if (title == "始業時刻設定") {
@@ -147,20 +128,28 @@ public class BaseSetListActivity extends Activity {
 						.append(df.format(hourOfDay)).append(":")
 						.append(df.format(minute));
 				String a = sb.toString();
-				TextView time_tv = (TextView) findViewById(R.id.desc);
-				//String desc = mList.get(1).get("desc");
-				//Log.d("debug", );
-				
+
+				ListView listView;
+			    listView = (ListView)findViewById(R.id.listview);
+
 				try {
 					if (title == "始業時刻設定") {
+						final View listDataView = listView.getChildAt(0);
+						TextView time_tv = (TextView) listDataView.findViewById(R.id.desc);
 						cv.put(DbConstants.COLUMN_START_TIME, a);
 						time_tv.setText("現在の設定 " + a); // 設定時刻画面反映
+						
 					} else if (title == "終業時刻設定") {
+						final View listDataView = listView.getChildAt(1);
+						TextView time_tv = (TextView) listDataView.findViewById(R.id.desc);
 						cv.put(DbConstants.COLUMN_END_TIME, a);
-						//time_tv.setText("現在の設定 " + a); // 設定時刻画面反映
+						time_tv.setText("現在の設定 " + a); // 設定時刻画面反映
+						
 					} else if (title == "休憩時間設定") {
+						final View listDataView = listView.getChildAt(2);
+						TextView time_tv = (TextView) listDataView.findViewById(R.id.desc);
 						cv.put(DbConstants.COLUMN_BREAK_TIME, a);
-						// time_tv.setText("現在の設定 " + sb); // 設定時刻画面反映
+						time_tv.setText("現在の設定 " + sb); // 設定時刻画面反映
 					}
 
 					cv.put(DbConstants.COLUMN_UPDATE_DATETIME, update_date_time);
@@ -177,13 +166,5 @@ public class BaseSetListActivity extends Activity {
 		// timePickerDialog.setTitle("時間設定");
 		timePickerDialog.setMessage(settitle);
 		timePickerDialog.show();
-
-		// @Override
-		// public void onTimeChanged(TimePicker view, int hourOfDay, int minute)
-		// {
-		// do nothing
-		// }
-
 	};
-
 }
