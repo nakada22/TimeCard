@@ -364,7 +364,8 @@ public class TopActivity extends Activity implements View.OnClickListener
             return true;
      
         case MENU_ID_C:
-        	finish();
+        	// アクティビティをバックグラウンドに移動する
+			moveTaskToBack(true);
             return true;
         }
         return false;

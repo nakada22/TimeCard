@@ -2,10 +2,6 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
 	<item
-	    android:title="セッティング"
-	    android:id="@+id/settings">
-	</item>
-	<item
 	    android:title="TOPに戻る"
 	    android:id="@+id/return_top">
 	</item>

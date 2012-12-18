@@ -102,7 +102,9 @@ import android.widget.TextView;
 			 dlg.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					finish();
+					//finish();
+					// アクティビティをバックグラウンドに移動する
+					moveTaskToBack(true);
 				}
 			 });
 			 dlg.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
@@ -111,11 +113,7 @@ import android.widget.TextView;
 					}
 			 });
 			 dlg.create().show();
-
-			 break;
-
-		 default:
-		 break;
+			 return true;
 		 }
 		 return super.onOptionsItemSelected(item);
 	}
