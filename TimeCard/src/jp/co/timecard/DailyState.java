@@ -14,13 +14,22 @@ public class DailyState implements Serializable {
 	private String leave;
 	private String break_time;
 	private String work_hour;
-
+	private String mon_target;
+	
 	public void setDate(String _date) {
 		this.date = _date;
 	}
 	public String getDate() {
 		return this.date;
 	}
+	
+	public void setTargetDate(String _mon_target) {
+		this.mon_target = _mon_target;
+	}
+	public String getTargetDate() {
+		return this.mon_target;
+	}
+	
 	public void setAttendance(String _attendance) {
 		this.attendance = _attendance;
 	}

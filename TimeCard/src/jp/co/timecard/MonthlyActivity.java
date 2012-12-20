@@ -26,7 +26,7 @@ import android.widget.TextView;
  public class MonthlyActivity extends Activity implements View.OnClickListener {
 
 	private Calendar cal;
-	private int  mYear;
+	private int mYear;
 	private int mMonth;
 
 	final int PRE_MONTH = -1;
@@ -141,17 +141,21 @@ import android.widget.TextView;
 		final ArrayList<DailyState> dayOfMonth = new ArrayList<DailyState>();
 
 		Dao dao = new Dao(this);
-
+		
 		int dom = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		for(int i = 1; i <= dom; i++) {
 			//DBから勤怠を取得してくる（なければ空欄）
 			DailyState ds = new DailyState();
+			
 			String crrent_mMonth = String.format("%1$02d",mMonth+1);
-			String disp_date = mYear + "/" + crrent_mMonth + "/" + String.format("%1$02d", i);
+			String disp_date = String.format("%1$02d", i)+"日";
 			ds.setDate(disp_date);
-
+			
+			String date_param = mYear + "/" + crrent_mMonth + "/" + String.format("%1$02d", i);
+			ds.setTargetDate(date_param);
+			
 			// 戻り値より出勤時刻・退勤時刻を取得
-			String[] daily_param = dao.MonthlyList(disp_date);
+			String[] daily_param = dao.MonthlyList(date_param);
 			String attendance_time = daily_param[0];
 			String leaveoffice_time = daily_param[1];
 			String break_time = daily_param[2];

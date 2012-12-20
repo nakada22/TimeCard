@@ -32,6 +32,7 @@ public class DailyActivity extends Activity {
 	final int NEX_DAY = 1;
 
 	TextView tvDate;
+	TextView tvDayTarget;
 	TextView tvAttendance;
 	TextView tvLeave;
 	TextView tvBreak;
@@ -44,11 +45,10 @@ public class DailyActivity extends Activity {
 		DailyState ds = (DailyState) i.getSerializableExtra("DailyState");
 
 		//画面遷移直後の表示(月次画面リストで値がない場合は、mst_initimeの値をセットとする)
-		final String date = ds.getDate();
+		final String date = ds.getTargetDate(); // YYYY/MM/DD
 		final Dao dao = new Dao(getApplicationContext());
 		String[] default_param = dao.DailyDefaultTime(); // mst_initimeの値
-		//Log.d("debug", );
-
+		
 		String attendance = null;
 		String leave = null;
 		String break_time = null;
@@ -65,8 +65,7 @@ public class DailyActivity extends Activity {
 			break_time = ds.getBreakTime();
 		} else{break_time = default_param[2];}
 
-		String str= new String(date);
-		String[] strArray = str.split("/");
+		String[] strArray = date.split("/"); // YYYY/M/DD
 		
 		calendar = Calendar.getInstance();
 		calendar.set(Integer.parseInt(strArray[0]), 
